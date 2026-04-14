@@ -1,0 +1,193 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Exams - Smart LMS{% endblock %}
+{% block page_title %}Exams{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'parent_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    <a href="{% url 'parent_child_profile' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-child text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">My Child</span>
+    </a>
+    <a href="{% url 'parent_performance' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Performance</span>
+    </a>
+    <a href="{% url 'parent_attendance' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+    <a href="{% url 'parent_exams' child.id %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-list text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Exams</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'parent_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'parent_child_profile' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-child text-xl"></i><span>My Child</span>
+    </a>
+    <a href="{% url 'parent_performance' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl"></i><span>Performance</span>
+    </a>
+    <a href="{% url 'parent_attendance' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl"></i><span>Attendance</span>
+    </a>
+    <a href="{% url 'parent_exams' child.id %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-list text-xl"></i><span>Exams</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-3xl font-bold text-gray-800">{{ child.user.get_full_name }}'s Exams</h2>
+    <p class="text-gray-600 mt-1">View your child's exam attempts and results.</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-blue-100 text-sm font-medium mb-2">Total Exams</p>
+                <h3 class="text-4xl font-bold">{{ total_exams }}</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-clipboard-list text-3xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-green-100 text-sm font-medium mb-2">Passed</p>
+                <h3 class="text-4xl font-bold">{{ passed_exams }}</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-check-circle text-3xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-purple-100 text-sm font-medium mb-2">Success Rate</p>
+                <h3 class="text-4xl font-bold">{% if total_exams > 0 %}{{ passed_exams|floatformat:0|add:"0"|mul:100|div:total_exams|floatformat:0 }}%{% else %}0%{% endif %}</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-chart-line text-3xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white rounded-2xl shadow-sm p-6">
+    <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-bold text-gray-800 flex items-center">
+            <i class="fas fa-list text-blue-600 mr-3"></i>
+            All Exam Attempts
+        </h3>
+    </div>
+    
+    <div class="space-y-4">
+        {% for attempt in exam_attempts %}
+        <div class="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex-1">
+                    <h4 class="text-xl font-bold text-gray-800">{{ attempt.exam.title }}</h4>
+                    <p class="text-sm text-gray-500 mt-1">{{ attempt.exam.description|truncatewords:20 }}</p>
+                    <div class="flex items-center space-x-4 mt-3 text-sm text-gray-600">
+                        <span><i class="fas fa-calendar mr-1"></i> {{ attempt.start_time|date:"M d, Y" }}</span>
+                        <span><i class="fas fa-clock mr-1"></i> {{ attempt.exam.duration }} minutes</span>
+                    </div>
+                </div>
+                <div class="ml-6 text-right">
+                    {% if attempt.status == 'evaluated' %}
+                    <div class="mb-2">
+                        <p class="text-3xl font-bold {% if attempt.is_passed %}text-green-600{% else %}text-red-600{% endif %}">
+                            {{ attempt.marks_obtained }}/{{ attempt.exam.total_marks }}
+                        </p>
+                        <p class="text-sm text-gray-500 mt-1">
+                            {% if attempt.marks_obtained and attempt.exam.total_marks %}
+                            {{ attempt.marks_obtained|floatformat:0|add:"0"|mul:100|div:attempt.exam.total_marks|floatformat:0 }}%
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% if attempt.is_passed %}
+                    <span class="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-semibold inline-flex items-center">
+                        <i class="fas fa-check-circle mr-2"></i> Passed
+                    </span>
+                    {% else %}
+                    <span class="px-4 py-2 bg-red-100 text-red-700 rounded-full text-sm font-semibold inline-flex items-center">
+                        <i class="fas fa-times-circle mr-2"></i> Failed
+                    </span>
+                    {% endif %}
+                    {% elif attempt.status == 'submitted' %}
+                    <span class="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-full text-sm font-semibold inline-flex items-center">
+                        <i class="fas fa-clock mr-2"></i> Pending Evaluation
+                    </span>
+                    {% elif attempt.status == 'in_progress' %}
+                    <span class="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold inline-flex items-center">
+                        <i class="fas fa-spinner mr-2"></i> In Progress
+                    </span>
+                    {% else %}
+                    <span class="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-semibold">
+                        {{ attempt.status|title }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if attempt.status == 'evaluated' %}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-gray-200">
+                <div class="p-3 bg-blue-50 rounded-lg">
+                    <p class="text-sm text-gray-600 mb-1">Total Questions</p>
+                    <p class="text-xl font-bold text-blue-600">{{ attempt.exam.questions.count }}</p>
+                </div>
+                <div class="p-3 bg-green-50 rounded-lg">
+                    <p class="text-sm text-gray-600 mb-1">Passing Marks</p>
+                    <p class="text-xl font-bold text-green-600">{{ attempt.exam.passing_marks }}</p>
+                </div>
+                <div class="p-3 bg-purple-50 rounded-lg">
+                    <p class="text-sm text-gray-600 mb-1">Attempt Time</p>
+                    <p class="text-xl font-bold text-purple-600">
+                        {% if attempt.end_time and attempt.start_time %}
+                        {{ attempt.end_time|timeuntil:attempt.start_time }}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if attempt.feedback %}
+            <div class="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <p class="text-sm font-semibold text-gray-800 mb-2">
+                    <i class="fas fa-comment-alt text-blue-600 mr-2"></i>Mentor Feedback
+                </p>
+                <p class="text-sm text-gray-700">{{ attempt.feedback }}</p>
+            </div>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="text-center py-12 text-gray-500">
+            <i class="fas fa-clipboard-list text-6xl mb-4"></i>
+            <p class="text-xl font-semibold mb-2">No Exam Attempts Yet</p>
+            <p class="text-sm">Your child hasn't attempted any exams yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

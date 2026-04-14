@@ -1,0 +1,190 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}My Assignments - Smart LMS{% endblock %}
+{% block page_title %}My Assignments{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'student_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    
+    <a href="{% url 'student_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-book-open text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Curriculum</span>
+    </a>
+    
+    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg" onclick="alert('Video explanations coming soon!'); return false;">
+        <i class="fas fa-play-circle text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Explanation</span>
+    </a>
+    
+    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg" onclick="alert('AI Help feature coming soon!'); return false;">
+        <i class="fas fa-robot text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">AI Help</span>
+    </a>
+    
+    <a href="{% url 'student_assignments' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-tasks text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Assignments</span>
+    </a>
+    
+    <a href="{% url 'student_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-alt text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+    
+    <a href="{% url 'student_progress' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Progress</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'student_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'student_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-book-open text-xl"></i><span>Curriculum</span>
+    </a>
+    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg" onclick="alert('Video explanations coming soon!'); return false;">
+        <i class="fas fa-play-circle text-xl"></i><span>Explanation</span>
+    </a>
+    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg" onclick="alert('AI Help feature coming soon!'); return false;">
+        <i class="fas fa-robot text-xl"></i><span>AI Help</span>
+    </a>
+    <a href="{% url 'student_assignments' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-tasks text-xl"></i><span>Assignments</span>
+    </a>
+    <a href="{% url 'student_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-alt text-xl"></i><span>Attendance</span>
+    </a>
+    <a href="{% url 'student_progress' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl"></i><span>Progress</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-3xl font-bold text-gray-800">My Assignments</h2>
+    <p class="text-gray-600 mt-1">View and submit your assignments</p>
+</div>
+
+<!-- Filter Tabs -->
+<div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+    <div class="flex flex-wrap gap-3">
+        <a href="?status=all" class="px-6 py-2 rounded-lg font-semibold {% if status_filter == 'all' %}bg-primary text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+            All Assignments
+        </a>
+        <a href="?status=pending" class="px-6 py-2 rounded-lg font-semibold {% if status_filter == 'pending' %}bg-primary text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+            Pending
+        </a>
+        <a href="?status=submitted" class="px-6 py-2 rounded-lg font-semibold {% if status_filter == 'submitted' %}bg-primary text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+            Submitted
+        </a>
+        <a href="?status=evaluated" class="px-6 py-2 rounded-lg font-semibold {% if status_filter == 'evaluated' %}bg-primary text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+            Graded
+        </a>
+    </div>
+</div>
+
+<!-- Assignments List -->
+<div class="space-y-4">
+    {% if assignments %}
+        {% for item in assignments %}
+        <div class="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div class="flex-1">
+                    <div class="flex items-start gap-3 mb-3">
+                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-file-alt text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold text-gray-800 mb-1">{{ item.assignment.title }}</h3>
+                            <div class="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+                                <span><i class="fas fa-layer-group mr-1"></i>{{ item.phase.name }}</span>
+                                <span><i class="fas fa-book mr-1"></i>{{ item.module.name }}</span>
+                                <span><i class="fas fa-bookmark mr-1"></i>{{ item.topic.name }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-600 mb-4">{{ item.assignment.description }}</p>
+                    
+                    <div class="flex flex-wrap items-center gap-4 text-sm">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-calendar text-gray-400"></i>
+                            <span class="text-gray-600">Due: {{ item.assignment.due_date|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-star text-gray-400"></i>
+                            <span class="text-gray-600">Max Marks: {{ item.assignment.max_marks }}</span>
+                        </div>
+                        {% if item.submission %}
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-check-circle text-green-500"></i>
+                            <span class="text-gray-600">Submitted: {{ item.submission.submitted_at|date:"M d, Y" }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if item.submission and item.submission.status == 'evaluated' %}
+                    <div class="mt-4 p-4 bg-green-50 rounded-xl border border-green-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-semibold text-gray-800">Grade</span>
+                            <span class="text-2xl font-bold text-green-600">{{ item.submission.marks_obtained }}/{{ item.assignment.max_marks }}</span>
+                        </div>
+                        {% if item.submission.feedback %}
+                        <p class="text-sm text-gray-600 mt-2"><strong>Feedback:</strong> {{ item.submission.feedback }}</p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="flex flex-col gap-2 lg:w-48">
+                    {% if not item.submission %}
+                    <span class="px-4 py-2 bg-red-100 text-red-700 rounded-lg text-sm font-semibold text-center">
+                        <i class="fas fa-exclamation-circle mr-1"></i>Not Submitted
+                    </span>
+                    <a href="{% url 'submit_assignment' item.assignment.id %}" class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold text-center hover:bg-blue-700">
+                        <i class="fas fa-upload mr-1"></i>Submit Now
+                    </a>
+                    {% elif item.submission.status == 'submitted' %}
+                    <span class="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg text-sm font-semibold text-center">
+                        <i class="fas fa-clock mr-1"></i>Under Review
+                    </span>
+                    <a href="{% url 'submit_assignment' item.assignment.id %}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold text-center hover:bg-gray-200">
+                        <i class="fas fa-eye mr-1"></i>View
+                    </a>
+                    {% elif item.submission.status == 'evaluated' %}
+                    <span class="px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-semibold text-center">
+                        <i class="fas fa-check-circle mr-1"></i>Graded
+                    </span>
+                    <a href="{% url 'submit_assignment' item.assignment.id %}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold text-center hover:bg-gray-200">
+                        <i class="fas fa-eye mr-1"></i>View Details
+                    </a>
+                    {% elif item.submission.status == 'resubmit' %}
+                    <span class="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg text-sm font-semibold text-center">
+                        <i class="fas fa-redo mr-1"></i>Resubmit Required
+                    </span>
+                    <a href="{% url 'submit_assignment' item.assignment.id %}" class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold text-center hover:bg-blue-700">
+                        <i class="fas fa-upload mr-1"></i>Resubmit
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="bg-white rounded-2xl shadow-sm p-12 text-center">
+            <i class="fas fa-tasks text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">No Assignments Found</h3>
+            <p class="text-gray-600">{% if status_filter != 'all' %}Try changing the filter or {% endif %}check back later for new assignments.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

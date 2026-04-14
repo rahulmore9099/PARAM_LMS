@@ -1,0 +1,160 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Mentor Dashboard - Smart LMS{% endblock %}
+{% block page_title %}Mentor Dashboard{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'mentor_dashboard' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    <a href="{% url 'mentor_students' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-users text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">My Students</span>
+    </a>
+    <a href="{% url 'mentor_evaluations' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Evaluations</span>
+    </a>
+    <a href="{% url 'mentor_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-alt text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+    <a href="{% url 'mentor_top_performers' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-trophy text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Top Performers</span>
+    </a>
+    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg" onclick="alert('Sessions feature coming soon!'); return false;">
+        <i class="fas fa-video text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Sessions</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'mentor_dashboard' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-users text-xl"></i><span>My Students</span>
+    </a>
+    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-check text-xl"></i><span>Evaluations</span>
+    </a>
+    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-alt text-xl"></i><span>Attendance</span>
+    </a>
+    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-video text-xl"></i><span>Sessions</span>
+    </a>
+    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-bar text-xl"></i><span>Reports</span>
+    </a>
+    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-comments text-xl"></i><span>Messages</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-3xl font-bold text-gray-800">Welcome back, {{ user.get_full_name|default:user.username }}! 👨‍🏫</h2>
+    <p class="text-gray-600 mt-1">Manage your students and track their progress.</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
+    <div class="stat-card bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-blue-100 text-sm font-medium mb-2">Total Students</p>
+                <h3 class="text-4xl font-bold">{{ total_students|default:0 }}</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-users text-3xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stat-card bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-orange-100 text-sm font-medium mb-2">Pending Evaluations</p>
+                <h3 class="text-4xl font-bold">{{ pending_evaluations|default:0 }}</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-clipboard-check text-3xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stat-card bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-yellow-100 text-sm font-medium mb-2">Top Performer Approvals</p>
+                <h3 class="text-4xl font-bold">{{ pending_approvals|default:0 }}</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-trophy text-3xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stat-card bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-green-100 text-sm font-medium mb-2">Upcoming Sessions</p>
+                <h3 class="text-4xl font-bold">{{ upcoming_sessions|default:0 }}</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-video text-3xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stat-card bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-purple-100 text-sm font-medium mb-2">Attendance Today</p>
+                <h3 class="text-4xl font-bold">{{ attendance_today|default:0 }}%</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-calendar-check text-3xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-2xl shadow-sm p-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-6">Pending Evaluations</h3>
+        <div class="space-y-4">
+            <div class="p-4 border border-gray-200 rounded-xl hover:shadow-md transition">
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-semibold text-gray-800">Python Assignment - John Doe</h4>
+                    <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">Pending</span>
+                </div>
+                <p class="text-sm text-gray-600 mb-3">Submitted 2 hours ago</p>
+                <button class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-blue-700">Evaluate</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-2xl shadow-sm p-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-6">Student Performance</h3>
+        <div class="space-y-4">
+            <div class="flex items-center justify-between p-4 border border-gray-200 rounded-xl">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold">JD</div>
+                    <div>
+                        <p class="font-semibold text-gray-800">John Doe</p>
+                        <p class="text-sm text-gray-500">Phase 1 - 85% Complete</p>
+                    </div>
+                </div>
+                <button class="text-primary hover:text-blue-700">View →</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

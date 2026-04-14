@@ -1,0 +1,162 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Attendance - Smart LMS{% endblock %}
+{% block page_title %}Attendance{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'mentor_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    <a href="{% url 'mentor_students' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-users text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">My Students</span>
+    </a>
+    <a href="{% url 'mentor_evaluations' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Evaluations</span>
+    </a>
+    <a href="{% url 'mentor_attendance' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-alt text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'mentor_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'mentor_students' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-users text-xl"></i><span>My Students</span>
+    </a>
+    <a href="{% url 'mentor_evaluations' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-check text-xl"></i><span>Evaluations</span>
+    </a>
+    <a href="{% url 'mentor_attendance' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-alt text-xl"></i><span>Attendance</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-3xl font-bold text-gray-800">Student Attendance</h2>
+    <p class="text-gray-600 mt-1">View and manage attendance for {{ today|date:"F d, Y" }}</p>
+</div>
+
+<!-- Today's Attendance -->
+<div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+    <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-bold text-gray-800">Today's Attendance</h3>
+        <span class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-semibold">
+            <i class="fas fa-calendar mr-2"></i>{{ today|date:"M d, Y" }}
+        </span>
+    </div>
+    
+    {% if attendance_records %}
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-gray-200">
+                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Student</th>
+                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Enrollment</th>
+                    <th class="text-left py-3 px-4 font-semibold text-gray-700">In Time</th>
+                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Out Time</th>
+                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
+                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Location</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in attendance_records %}
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="py-3 px-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
+                                {{ record.student.user.first_name.0 }}{{ record.student.user.last_name.0 }}
+                            </div>
+                            <span class="font-semibold text-gray-800">{{ record.student.user.get_full_name }}</span>
+                        </div>
+                    </td>
+                    <td class="py-3 px-4 text-gray-600">{{ record.student.enrollment_number }}</td>
+                    <td class="py-3 px-4 text-gray-600">{% if record.in_time %}{{ record.in_time }}{% else %}--{% endif %}</td>
+                    <td class="py-3 px-4 text-gray-600">{% if record.out_time %}{{ record.out_time }}{% else %}--{% endif %}</td>
+                    <td class="py-3 px-4">
+                        {% if record.status == 'present' %}
+                        <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                            <i class="fas fa-check-circle mr-1"></i>Present
+                        </span>
+                        {% elif record.status == 'absent' %}
+                        <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">
+                            <i class="fas fa-times-circle mr-1"></i>Absent
+                        </span>
+                        {% elif record.status == 'leave' %}
+                        <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">
+                            <i class="fas fa-calendar-times mr-1"></i>Leave
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4 text-gray-600 text-sm">
+                        {% if record.in_location_address %}
+                        <i class="fas fa-map-marker-alt text-primary mr-1"></i>{{ record.in_location_address|truncatewords:3 }}
+                        {% else %}
+                        --
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <i class="fas fa-calendar-alt text-6xl text-gray-300 mb-4"></i>
+        <h3 class="text-xl font-bold text-gray-800 mb-2">No Attendance Records</h3>
+        <p class="text-gray-600">No students have marked attendance today yet.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- All Students List -->
+<div class="bg-white rounded-2xl shadow-sm p-6">
+    <h3 class="text-xl font-bold text-gray-800 mb-6">All Students</h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for student in all_students %}
+        <div class="p-4 border border-gray-200 rounded-xl hover:shadow-md transition">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
+                    {{ student.user.first_name.0 }}{{ student.user.last_name.0 }}
+                </div>
+                <div class="flex-1">
+                    <h4 class="font-semibold text-gray-800">{{ student.user.get_full_name }}</h4>
+                    <p class="text-sm text-gray-600">{{ student.enrollment_number }}</p>
+                </div>
+            </div>
+            
+            {% with attendance_records|dictsort:"student.id" as sorted_records %}
+            {% for record in sorted_records %}
+                {% if record.student.id == student.id %}
+                    {% if record.status == 'present' %}
+                    <span class="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-semibold">
+                        <i class="fas fa-check-circle mr-1"></i>Present Today
+                    </span>
+                    {% elif record.status == 'absent' %}
+                    <span class="px-3 py-1 bg-red-100 text-red-700 rounded-lg text-xs font-semibold">
+                        <i class="fas fa-times-circle mr-1"></i>Absent Today
+                    </span>
+                    {% elif record.status == 'leave' %}
+                    <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg text-xs font-semibold">
+                        <i class="fas fa-calendar-times mr-1"></i>On Leave
+                    </span>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            {% endwith %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

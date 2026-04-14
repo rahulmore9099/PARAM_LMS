@@ -1,0 +1,241 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Attendance - Smart LMS{% endblock %}
+{% block page_title %}Attendance{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'parent_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    <a href="{% url 'parent_child_profile' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-child text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">My Child</span>
+    </a>
+    <a href="{% url 'parent_performance' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Performance</span>
+    </a>
+    <a href="{% url 'parent_attendance' child.id %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+    <a href="{% url 'parent_exams' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-list text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Exams</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'parent_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'parent_child_profile' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-child text-xl"></i><span>My Child</span>
+    </a>
+    <a href="{% url 'parent_performance' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl"></i><span>Performance</span>
+    </a>
+    <a href="{% url 'parent_attendance' child.id %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl"></i><span>Attendance</span>
+    </a>
+    <a href="{% url 'parent_exams' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-list text-xl"></i><span>Exams</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-3xl font-bold text-gray-800">{{ child.user.get_full_name }}'s Attendance</h2>
+    <p class="text-gray-600 mt-1">Monitor your child's attendance records and statistics.</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+    <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-green-100 text-sm font-medium mb-2">Present Days</p>
+                <h3 class="text-4xl font-bold">{{ present_days }}</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-check text-3xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-red-100 text-sm font-medium mb-2">Absent Days</p>
+                <h3 class="text-4xl font-bold">{{ absent_days }}</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-times text-3xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-yellow-100 text-sm font-medium mb-2">Leave Days</p>
+                <h3 class="text-4xl font-bold">{{ leave_days }}</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-calendar-times text-3xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-blue-100 text-sm font-medium mb-2">Attendance %</p>
+                <h3 class="text-4xl font-bold">{{ attendance_percentage }}%</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-chart-pie text-3xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white rounded-2xl shadow-sm p-6">
+    <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-bold text-gray-800 flex items-center">
+            <i class="fas fa-calendar-alt text-blue-600 mr-3"></i>
+            Attendance Records (Last 30 Days)
+        </h3>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-gray-200">
+                    <th class="text-left py-4 px-4 font-semibold text-gray-700">Date</th>
+                    <th class="text-left py-4 px-4 font-semibold text-gray-700">Day</th>
+                    <th class="text-left py-4 px-4 font-semibold text-gray-700">Status</th>
+                    <th class="text-left py-4 px-4 font-semibold text-gray-700">In Time</th>
+                    <th class="text-left py-4 px-4 font-semibold text-gray-700">Out Time</th>
+                    <th class="text-left py-4 px-4 font-semibold text-gray-700">Location</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in attendance_records %}
+                <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <td class="py-4 px-4">
+                        <span class="font-semibold text-gray-800">{{ record.date|date:"M d, Y" }}</span>
+                    </td>
+                    <td class="py-4 px-4">
+                        <span class="text-gray-600">{{ record.date|date:"l" }}</span>
+                    </td>
+                    <td class="py-4 px-4">
+                        {% if record.status == 'present' %}
+                        <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold inline-flex items-center">
+                            <i class="fas fa-check mr-1"></i> Present
+                        </span>
+                        {% elif record.status == 'absent' %}
+                        <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-semibold inline-flex items-center">
+                            <i class="fas fa-times mr-1"></i> Absent
+                        </span>
+                        {% elif record.status == 'leave' %}
+                        <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-semibold inline-flex items-center">
+                            <i class="fas fa-calendar-times mr-1"></i> Leave
+                        </span>
+                        {% else %}
+                        <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-semibold">
+                            {{ record.status|title }}
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="py-4 px-4">
+                        {% if record.in_time %}
+                        <span class="text-gray-700">{{ record.in_time|time:"g:i A" }}</span>
+                        {% else %}
+                        <span class="text-gray-400">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-4 px-4">
+                        {% if record.out_time %}
+                        <span class="text-gray-700">{{ record.out_time|time:"g:i A" }}</span>
+                        {% else %}
+                        <span class="text-gray-400">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-4 px-4">
+                        {% if record.in_location_address %}
+                        <button onclick="showLocation('{{ record.in_latitude }}', '{{ record.in_longitude }}', '{{ record.in_location_address }}')" 
+                                class="text-blue-600 hover:text-blue-700 text-sm">
+                            <i class="fas fa-map-marker-alt mr-1"></i> View
+                        </button>
+                        {% else %}
+                        <span class="text-gray-400">-</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="py-12 text-center text-gray-500">
+                        <i class="fas fa-calendar-alt text-4xl mb-3"></i>
+                        <p>No attendance records found.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="locationModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-800">Location Details</h3>
+            <button onclick="closeLocationModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div id="locationContent" class="text-gray-700">
+        </div>
+    </div>
+</div>
+
+<script>
+function showLocation(lat, lng, address) {
+    const modal = document.getElementById('locationModal');
+    const content = document.getElementById('locationContent');
+    
+    content.innerHTML = `
+        <div class="space-y-3">
+            <div class="p-3 bg-gray-50 rounded-lg">
+                <p class="text-sm text-gray-600 mb-1">Address</p>
+                <p class="font-semibold">${address}</p>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="p-3 bg-gray-50 rounded-lg">
+                    <p class="text-sm text-gray-600 mb-1">Latitude</p>
+                    <p class="font-semibold">${lat}</p>
+                </div>
+                <div class="p-3 bg-gray-50 rounded-lg">
+                    <p class="text-sm text-gray-600 mb-1">Longitude</p>
+                    <p class="font-semibold">${lng}</p>
+                </div>
+            </div>
+            <a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" 
+               class="block w-full text-center bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-map-marked-alt mr-2"></i> Open in Google Maps
+            </a>
+        </div>
+    `;
+    
+    modal.classList.remove('hidden');
+}
+
+function closeLocationModal() {
+    document.getElementById('locationModal').classList.add('hidden');
+}
+</script>
+{% endblock %}

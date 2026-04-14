@@ -1,0 +1,207 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Mentors Management - Smart LMS{% endblock %}
+{% block page_title %}Mentors Management{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'admin_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    <a href="{% url 'admin_students' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-user-graduate text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Students</span>
+    </a>
+    <a href="{% url 'admin_mentors' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chalkboard-teacher text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Mentors</span>
+    </a>
+    <a href="{% url 'admin_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-book-open text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Courses</span>
+    </a>
+    <a href="{% url 'admin_batches' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-users text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Batches</span>
+    </a>
+    <a href="{% url 'admin_exams' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-list text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Exams</span>
+    </a>
+    <a href="{% url 'admin_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+    <a href="{% url 'admin_announcements' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-bullhorn text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Announcements</span>
+    </a>
+    <a href="{% url 'admin_reports' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-bar text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Reports</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'admin_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'admin_students' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-user-graduate text-xl"></i><span>Students</span>
+    </a>
+    <a href="{% url 'admin_mentors' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chalkboard-teacher text-xl"></i><span>Mentors</span>
+    </a>
+    <a href="{% url 'admin_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-book-open text-xl"></i><span>Courses</span>
+    </a>
+    <a href="{% url 'admin_batches' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-users text-xl"></i><span>Batches</span>
+    </a>
+    <a href="{% url 'admin_exams' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-list text-xl"></i><span>Exams</span>
+    </a>
+    <a href="{% url 'admin_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl"></i><span>Attendance</span>
+    </a>
+    <a href="{% url 'admin_announcements' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-bullhorn text-xl"></i><span>Announcements</span>
+    </a>
+    <a href="{% url 'admin_reports' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-bar text-xl"></i><span>Reports</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h2 class="text-2xl font-bold text-gray-800">Mentors Management</h2>
+        <p class="text-gray-600 mt-1">Manage all mentors in the system</p>
+    </div>
+    <a href="{% url 'admin_add_mentor' %}" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-blue-700 transition flex items-center space-x-2">
+        <i class="fas fa-plus"></i>
+        <span>Add New Mentor</span>
+    </a>
+</div>
+
+<!-- Statistics -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div class="bg-white rounded-xl p-6 border-l-4 border-blue-500 shadow-sm">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 mb-1">Total Mentors</p>
+                <p class="text-3xl font-bold text-gray-800">{{ mentors.paginator.count }}</p>
+            </div>
+            <i class="fas fa-chalkboard-teacher text-4xl text-blue-500"></i>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl p-6 border-l-4 border-green-500 shadow-sm">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 mb-1">Active</p>
+                <p class="text-3xl font-bold text-gray-800">{{ active_count }}</p>
+            </div>
+            <i class="fas fa-check-circle text-4xl text-green-500"></i>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl p-6 border-l-4 border-orange-500 shadow-sm">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 mb-1">Inactive</p>
+                <p class="text-3xl font-bold text-gray-800">{{ inactive_count }}</p>
+            </div>
+            <i class="fas fa-times-circle text-4xl text-orange-500"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Search -->
+<div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+    <form method="GET" class="flex items-end space-x-4">
+        <div class="flex-1">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                <i class="fas fa-search mr-2"></i>Search
+            </label>
+            <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Search by name or email..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+        </div>
+        
+        <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 transition">
+            <i class="fas fa-search mr-2"></i>Search
+        </button>
+        <a href="{% url 'admin_mentors' %}" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+            <i class="fas fa-redo mr-2"></i>Reset
+        </a>
+    </form>
+</div>
+
+<!-- Mentors Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for mentor in mentors %}
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition">
+        <div class="h-32 bg-gradient-to-br from-purple-500 to-purple-700"></div>
+        <div class="p-6 -mt-16">
+            <div class="w-24 h-24 bg-white rounded-full mx-auto mb-4 flex items-center justify-center border-4 border-white shadow-lg">
+                {% if mentor.profile_picture %}
+                <img src="{{ mentor.profile_picture.url }}" alt="{{ mentor.get_full_name }}" class="w-full h-full rounded-full object-cover">
+                {% else %}
+                <i class="fas fa-user text-4xl text-gray-400"></i>
+                {% endif %}
+            </div>
+            <div class="text-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">{{ mentor.get_full_name }}</h3>
+                <p class="text-gray-600 text-sm">{{ mentor.email }}</p>
+                <p class="text-gray-500 text-sm">{{ mentor.phone }}</p>
+            </div>
+            <div class="flex items-center justify-center mb-4">
+                {% if mentor.is_active %}
+                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                    <i class="fas fa-check-circle mr-1"></i>Active
+                </span>
+                {% else %}
+                <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">
+                    <i class="fas fa-times-circle mr-1"></i>Inactive
+                </span>
+                {% endif %}
+            </div>
+            <div class="flex space-x-2">
+                <a href="{% url 'admin_edit_mentor' mentor.id %}" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-center text-sm">
+                    <i class="fas fa-edit mr-1"></i>Edit
+                </a>
+                <a href="{% url 'admin_delete_mentor' mentor.id %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-span-3 py-12 text-center text-gray-500">
+        <i class="fas fa-chalkboard-teacher text-6xl text-gray-300 mb-4"></i>
+        <p class="text-lg">No mentors found</p>
+        <a href="{% url 'admin_add_mentor' %}" class="text-primary hover:underline mt-2 inline-block">Add your first mentor</a>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if mentors.has_other_pages %}
+<div class="mt-6 flex items-center justify-center space-x-2">
+    {% if mentors.has_previous %}
+    <a href="?page={{ mentors.previous_page_number }}" class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50">Previous</a>
+    {% endif %}
+    
+    {% for num in mentors.paginator.page_range %}
+    <a href="?page={{ num }}" class="px-4 py-2 {% if mentors.number == num %}bg-primary text-white{% else %}bg-white border{% endif %} rounded-lg hover:bg-gray-50">{{ num }}</a>
+    {% endfor %}
+    
+    {% if mentors.has_next %}
+    <a href="?page={{ mentors.next_page_number }}" class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50">Next</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

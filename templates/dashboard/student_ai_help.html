@@ -1,0 +1,211 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}AI Help - Smart LMS{% endblock %}
+{% block page_title %}AI Help{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'student_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    
+    <a href="{% url 'student_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-book-open text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Curriculum</span>
+    </a>
+    
+    <a href="{% url 'student_explanation' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-play-circle text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Explanation</span>
+    </a>
+    
+    <a href="{% url 'student_ai_help' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-robot text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">AI Help</span>
+    </a>
+    
+    <a href="{% url 'student_assignments' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-tasks text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Assignments</span>
+    </a>
+    
+    <a href="{% url 'student_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-alt text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+    
+    <a href="{% url 'student_progress' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Progress</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'student_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'student_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-book-open text-xl"></i><span>Curriculum</span>
+    </a>
+    <a href="{% url 'student_explanation' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-play-circle text-xl"></i><span>Explanation</span>
+    </a>
+    <a href="{% url 'student_ai_help' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-robot text-xl"></i><span>AI Help</span>
+    </a>
+    <a href="{% url 'student_assignments' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-tasks text-xl"></i><span>Assignments</span>
+    </a>
+    <a href="{% url 'student_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-alt text-xl"></i><span>Attendance</span>
+    </a>
+    <a href="{% url 'student_progress' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl"></i><span>Progress</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-3xl font-bold text-gray-800">AI Help Assistant</h2>
+    <p class="text-gray-600 mt-1">Get instant answers to your programming questions</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Chat Area -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <!-- Chat Header -->
+            <div class="p-6 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-robot text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold">AI Learning Assistant</h3>
+                        <p class="text-blue-100 text-sm">Ask me anything about programming!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat Messages -->
+            <div class="p-6 space-y-4 max-h-[600px] overflow-y-auto" id="chatMessages">
+                {% if conversations %}
+                    {% for conv in conversations reversed %}
+                    <!-- User Question -->
+                    <div class="flex justify-end">
+                        <div class="max-w-[80%] bg-primary text-white rounded-2xl rounded-tr-sm p-4">
+                            <p class="text-sm">{{ conv.question }}</p>
+                            <p class="text-xs text-blue-100 mt-2">{{ conv.created_at|date:"M d, h:i A" }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- AI Answer -->
+                    <div class="flex justify-start">
+                        <div class="max-w-[80%] bg-gray-100 rounded-2xl rounded-tl-sm p-4">
+                            <div class="flex items-start gap-2 mb-2">
+                                <i class="fas fa-robot text-primary"></i>
+                                <span class="text-xs font-semibold text-gray-600">AI Assistant</span>
+                            </div>
+                            <p class="text-sm text-gray-800 whitespace-pre-line">{{ conv.answer }}</p>
+                            <p class="text-xs text-gray-500 mt-2">{{ conv.created_at|date:"M d, h:i A" }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-12">
+                        <i class="fas fa-comments text-6xl text-gray-300 mb-4"></i>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Start a Conversation</h3>
+                        <p class="text-gray-600">Ask your first question to get started!</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Chat Input -->
+            <div class="p-6 border-t border-gray-200">
+                <form method="POST" class="flex gap-3">
+                    {% csrf_token %}
+                    <input type="text" name="question" placeholder="Ask a question about Python, Django, or programming..." class="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                    <button type="submit" class="px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-blue-700 transition">
+                        <i class="fas fa-paper-plane mr-2"></i>Send
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="space-y-6">
+        <!-- Quick Topics -->
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Quick Topics</h3>
+            <div class="space-y-2">
+                <button onclick="document.querySelector('input[name=question]').value='What is Python?'; document.querySelector('form').scrollIntoView();" class="w-full text-left px-4 py-3 bg-blue-50 text-blue-700 rounded-xl hover:bg-blue-100 transition text-sm font-semibold">
+                    <i class="fas fa-question-circle mr-2"></i>What is Python?
+                </button>
+                <button onclick="document.querySelector('input[name=question]').value='Explain Python functions'; document.querySelector('form').scrollIntoView();" class="w-full text-left px-4 py-3 bg-green-50 text-green-700 rounded-xl hover:bg-green-100 transition text-sm font-semibold">
+                    <i class="fas fa-code mr-2"></i>Python Functions
+                </button>
+                <button onclick="document.querySelector('input[name=question]').value='How do loops work in Python?'; document.querySelector('form').scrollIntoView();" class="w-full text-left px-4 py-3 bg-purple-50 text-purple-700 rounded-xl hover:bg-purple-100 transition text-sm font-semibold">
+                    <i class="fas fa-sync mr-2"></i>Python Loops
+                </button>
+                <button onclick="document.querySelector('input[name=question]').value='Explain Django framework'; document.querySelector('form').scrollIntoView();" class="w-full text-left px-4 py-3 bg-orange-50 text-orange-700 rounded-xl hover:bg-orange-100 transition text-sm font-semibold">
+                    <i class="fas fa-server mr-2"></i>Django Framework
+                </button>
+                <button onclick="document.querySelector('input[name=question]').value='How to debug Python code?'; document.querySelector('form').scrollIntoView();" class="w-full text-left px-4 py-3 bg-red-50 text-red-700 rounded-xl hover:bg-red-100 transition text-sm font-semibold">
+                    <i class="fas fa-bug mr-2"></i>Debugging Tips
+                </button>
+            </div>
+        </div>
+        
+        <!-- Tips -->
+        <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 border border-blue-200">
+            <h3 class="text-lg font-bold text-gray-800 mb-3">
+                <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>Tips for Better Answers
+            </h3>
+            <ul class="space-y-2 text-sm text-gray-700">
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-check text-green-600 mt-1"></i>
+                    <span>Be specific with your questions</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-check text-green-600 mt-1"></i>
+                    <span>Include error messages if any</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-check text-green-600 mt-1"></i>
+                    <span>Ask one question at a time</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-check text-green-600 mt-1"></i>
+                    <span>Provide context when needed</span>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Stats -->
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Your Stats</h3>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                    <span class="text-sm font-semibold text-gray-700">Questions Asked</span>
+                    <span class="text-2xl font-bold text-blue-600">{{ conversations.count }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-scroll to bottom of chat
+document.addEventListener('DOMContentLoaded', function() {
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+});
+</script>
+{% endblock %}

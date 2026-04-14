@@ -1,0 +1,434 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Mark Attendance - Smart LMS{% endblock %}
+{% block page_title %}Mark Attendance{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'admin_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    <a href="{% url 'admin_students' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-user-graduate text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Students</span>
+    </a>
+    <a href="{% url 'admin_mentors' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chalkboard-teacher text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Mentors</span>
+    </a>
+    <a href="{% url 'admin_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-book-open text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Courses</span>
+    </a>
+    <a href="{% url 'admin_batches' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-users text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Batches</span>
+    </a>
+    <a href="{% url 'admin_exams' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-list text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Exams</span>
+    </a>
+    <a href="{% url 'admin_attendance' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+    <a href="{% url 'admin_announcements' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-bullhorn text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Announcements</span>
+    </a>
+    <a href="{% url 'admin_reports' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-bar text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Reports</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'admin_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'admin_students' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-user-graduate text-xl"></i><span>Students</span>
+    </a>
+    <a href="{% url 'admin_mentors' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chalkboard-teacher text-xl"></i><span>Mentors</span>
+    </a>
+    <a href="{% url 'admin_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-book-open text-xl"></i><span>Courses</span>
+    </a>
+    <a href="{% url 'admin_batches' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-users text-xl"></i><span>Batches</span>
+    </a>
+    <a href="{% url 'admin_exams' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-list text-xl"></i><span>Exams</span>
+    </a>
+    <a href="{% url 'admin_attendance' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl"></i><span>Attendance</span>
+    </a>
+    <a href="{% url 'admin_announcements' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-bullhorn text-xl"></i><span>Announcements</span>
+    </a>
+    <a href="{% url 'admin_reports' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-bar text-xl"></i><span>Reports</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{% url 'admin_attendance' %}" class="text-primary hover:underline flex items-center space-x-2">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back to Attendance</span>
+    </a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Mark Attendance Form -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-xl shadow-sm p-8">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 flex items-center space-x-3">
+                    <i class="fas fa-clock text-primary"></i>
+                    <span>Mark Attendance</span>
+                </h2>
+                <p class="text-gray-600 mt-2">Mark student attendance with live location tracking</p>
+            </div>
+
+            <form method="POST" id="attendanceForm" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Student Selection -->
+                <div class="border-l-4 border-blue-500 pl-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-user mr-2"></i>Student Information
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-user-graduate mr-2"></i>Select Student <span class="text-red-500">*</span>
+                            </label>
+                            <select name="student" id="studentSelect" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <option value="">Choose Student</option>
+                                {% for student in students %}
+                                <option value="{{ student.id }}">{{ student.user.get_full_name }} - {{ student.enrollment_number }} ({{ student.batch.name }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-calendar mr-2"></i>Date <span class="text-red-500">*</span>
+                            </label>
+                            <input type="date" name="date" id="dateInput" value="{{ today }}" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-check-circle mr-2"></i>Status <span class="text-red-500">*</span>
+                            </label>
+                            <select name="status" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <option value="present">Present</option>
+                                <option value="absent">Absent</option>
+                                <option value="late">Late</option>
+                                <option value="half_day">Half Day</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Time Tracking -->
+                <div class="border-l-4 border-green-500 pl-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-clock mr-2"></i>Time Tracking
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-sign-in-alt mr-2"></i>Start Time
+                            </label>
+                            <input type="time" name="in_time" id="inTime" readonly class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <button type="button" onclick="markStart()" class="mt-3 w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition flex items-center justify-center space-x-2">
+                                <i class="fas fa-play-circle"></i>
+                                <span>Start Attendance</span>
+                            </button>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Exit Time
+                            </label>
+                            <input type="time" name="out_time" id="outTime" readonly class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <button type="button" onclick="markExit()" id="exitBtn" disabled class="mt-3 w-full px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i class="fas fa-stop-circle"></i>
+                                <span>Exit Attendance</span>
+                            </button>
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <div id="hoursWorked" class="p-4 bg-blue-50 rounded-lg hidden">
+                                <p class="text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-hourglass-half mr-2"></i>Total Hours Worked: 
+                                    <span id="totalHours" class="text-primary text-lg">0 hrs 0 mins</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Tracking -->
+                <div class="border-l-4 border-purple-500 pl-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-map-marker-alt mr-2"></i>Location Tracking
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <button type="button" onclick="captureLocation()" class="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition flex items-center justify-center space-x-2">
+                            <i class="fas fa-crosshairs"></i>
+                            <span>Capture Live Location</span>
+                        </button>
+                        
+                        <div id="locationStatus" class="hidden p-4 rounded-lg">
+                            <p class="text-sm font-semibold mb-2">
+                                <i class="fas fa-check-circle mr-2"></i>Location Captured Successfully!
+                            </p>
+                            <p class="text-xs text-gray-600">
+                                <i class="fas fa-map-pin mr-1"></i>
+                                <span id="locationAddress">Fetching address...</span>
+                            </p>
+                            <p class="text-xs text-gray-500 mt-1">
+                                Coordinates: <span id="locationCoords"></span>
+                            </p>
+                        </div>
+                        
+                        <input type="hidden" name="in_latitude" id="inLatitude">
+                        <input type="hidden" name="in_longitude" id="inLongitude">
+                        <input type="hidden" name="in_location_address" id="inLocationAddress">
+                    </div>
+                </div>
+
+                <!-- Remarks -->
+                <div class="border-l-4 border-orange-500 pl-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-comment mr-2"></i>Remarks (Optional)
+                    </h3>
+                    <textarea name="remarks" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Add any remarks or notes..."></textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex items-center justify-end space-x-4 pt-6 border-t">
+                    <a href="{% url 'admin_attendance' %}" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                        <i class="fas fa-times mr-2"></i>Cancel
+                    </a>
+                    <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-blue-700 transition">
+                        <i class="fas fa-save mr-2"></i>Mark Attendance
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Live Timer & Info -->
+    <div class="lg:col-span-1">
+        <!-- Current Time -->
+        <div class="bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl shadow-sm p-6 text-white mb-6">
+            <h3 class="text-lg font-semibold mb-4">
+                <i class="fas fa-clock mr-2"></i>Current Time
+            </h3>
+            <div class="text-center">
+                <p id="currentTime" class="text-4xl font-bold mb-2">--:--:--</p>
+                <p id="currentDate" class="text-sm opacity-90">Loading...</p>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <i class="fas fa-info-circle mr-2"></i>Instructions
+            </h3>
+            <ul class="space-y-3 text-sm text-gray-600">
+                <li class="flex items-start space-x-2">
+                    <i class="fas fa-check text-green-500 mt-1"></i>
+                    <span>Select student from the dropdown</span>
+                </li>
+                <li class="flex items-start space-x-2">
+                    <i class="fas fa-check text-green-500 mt-1"></i>
+                    <span>Click "Start Attendance" button to mark entry</span>
+                </li>
+                <li class="flex items-start space-x-2">
+                    <i class="fas fa-check text-green-500 mt-1"></i>
+                    <span>Click "Exit Attendance" button when leaving</span>
+                </li>
+                <li class="flex items-start space-x-2">
+                    <i class="fas fa-check text-green-500 mt-1"></i>
+                    <span>Location is captured automatically with Start button</span>
+                </li>
+                <li class="flex items-start space-x-2">
+                    <i class="fas fa-check text-green-500 mt-1"></i>
+                    <span>Total hours will be calculated automatically</span>
+                </li>
+                <li class="flex items-start space-x-2">
+                    <i class="fas fa-exclamation-triangle text-orange-500 mt-1"></i>
+                    <span>Location tracking prevents fake attendance from home</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="bg-white rounded-xl shadow-sm p-6 mt-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <i class="fas fa-chart-line mr-2"></i>Today's Stats
+            </h3>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                    <span class="text-sm text-gray-700">Present</span>
+                    <span class="font-bold text-green-600">0</span>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                    <span class="text-sm text-gray-700">Absent</span>
+                    <span class="font-bold text-red-600">0</span>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                    <span class="text-sm text-gray-700">Late</span>
+                    <span class="font-bold text-orange-600">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Update current time every second
+function updateCurrentTime() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', { hour12: false });
+    const dateString = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    
+    document.getElementById('currentTime').textContent = timeString;
+    document.getElementById('currentDate').textContent = dateString;
+}
+
+// Mark Start - Capture location and set start time
+function markStart() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('inTime').value = `${hours}:${minutes}`;
+    
+    // Enable exit button
+    document.getElementById('exitBtn').disabled = false;
+    
+    // Capture location
+    captureLocation();
+    
+    // Show success message
+    alert('Start time marked successfully! Location captured.');
+}
+
+// Mark Exit - Set exit time and calculate hours
+function markExit() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('outTime').value = `${hours}:${minutes}`;
+    
+    // Calculate hours
+    calculateHours();
+    
+    // Show success message
+    alert('Exit time marked successfully! Total hours calculated.');
+}
+
+// Calculate total hours worked
+function calculateHours() {
+    const inTime = document.getElementById('inTime').value;
+    const outTime = document.getElementById('outTime').value;
+    
+    if (inTime && outTime) {
+        const [inHours, inMinutes] = inTime.split(':').map(Number);
+        const [outHours, outMinutes] = outTime.split(':').map(Number);
+        
+        const inTotalMinutes = inHours * 60 + inMinutes;
+        const outTotalMinutes = outHours * 60 + outMinutes;
+        
+        let diffMinutes = outTotalMinutes - inTotalMinutes;
+        
+        if (diffMinutes < 0) {
+            diffMinutes += 24 * 60; // Handle overnight shift
+        }
+        
+        const hours = Math.floor(diffMinutes / 60);
+        const minutes = diffMinutes % 60;
+        
+        document.getElementById('totalHours').textContent = `${hours} hrs ${minutes} mins`;
+        document.getElementById('hoursWorked').classList.remove('hidden');
+    }
+}
+
+// Capture live location
+function captureLocation() {
+    if (!navigator.geolocation) {
+        alert('Geolocation is not supported by your browser');
+        return;
+    }
+    
+    const statusDiv = document.getElementById('locationStatus');
+    statusDiv.className = 'p-4 rounded-lg bg-blue-50';
+    statusDiv.innerHTML = '<p class="text-sm text-blue-700"><i class="fas fa-spinner fa-spin mr-2"></i>Capturing location...</p>';
+    statusDiv.classList.remove('hidden');
+    
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            
+            document.getElementById('inLatitude').value = latitude;
+            document.getElementById('inLongitude').value = longitude;
+            document.getElementById('locationCoords').textContent = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+            
+            // Fetch address using reverse geocoding
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+                .then(response => response.json())
+                .then(data => {
+                    const address = data.display_name || 'Address not found';
+                    document.getElementById('inLocationAddress').value = address;
+                    document.getElementById('locationAddress').textContent = address;
+                })
+                .catch(error => {
+                    document.getElementById('locationAddress').textContent = 'Unable to fetch address';
+                });
+            
+            statusDiv.className = 'p-4 rounded-lg bg-green-50';
+            statusDiv.innerHTML = `
+                <p class="text-sm font-semibold text-green-700 mb-2">
+                    <i class="fas fa-check-circle mr-2"></i>Location Captured Successfully!
+                </p>
+                <p class="text-xs text-gray-600">
+                    <i class="fas fa-map-pin mr-1"></i>
+                    <span id="locationAddress">Fetching address...</span>
+                </p>
+                <p class="text-xs text-gray-500 mt-1">
+                    Coordinates: <span id="locationCoords">${latitude.toFixed(6)}, ${longitude.toFixed(6)}</span>
+                </p>
+            `;
+        },
+        function(error) {
+            statusDiv.className = 'p-4 rounded-lg bg-red-50';
+            statusDiv.innerHTML = `<p class="text-sm text-red-700"><i class="fas fa-exclamation-circle mr-2"></i>Error: ${error.message}</p>`;
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        }
+    );
+}
+
+// Initialize
+updateCurrentTime();
+setInterval(updateCurrentTime, 1000);
+</script>
+{% endblock %}

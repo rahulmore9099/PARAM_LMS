@@ -1,0 +1,200 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Parent Dashboard - Smart LMS{% endblock %}
+{% block page_title %}Parent Dashboard{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'parent_dashboard' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    {% if child %}
+    <a href="{% url 'parent_child_profile' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-child text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">My Child</span>
+    </a>
+    <a href="{% url 'parent_performance' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Performance</span>
+    </a>
+    <a href="{% url 'parent_attendance' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+    <a href="{% url 'parent_exams' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-list text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Exams</span>
+    </a>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'parent_dashboard' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    {% if child %}
+    <a href="{% url 'parent_child_profile' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-child text-xl"></i><span>My Child</span>
+    </a>
+    <a href="{% url 'parent_performance' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl"></i><span>Performance</span>
+    </a>
+    <a href="{% url 'parent_attendance' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl"></i><span>Attendance</span>
+    </a>
+    <a href="{% url 'parent_exams' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-list text-xl"></i><span>Exams</span>
+    </a>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-3xl font-bold text-gray-800">Welcome, {{ user.get_full_name|default:user.username }}! 👨‍👩‍👧</h2>
+    <p class="text-gray-600 mt-1">Track your child's learning progress and performance.</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <div class="stat-card bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-blue-100 text-sm font-medium mb-2">Overall Progress</p>
+                <h3 class="text-4xl font-bold">75%</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-chart-line text-3xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stat-card bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-green-100 text-sm font-medium mb-2">Attendance</p>
+                <h3 class="text-4xl font-bold">92%</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-calendar-check text-3xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stat-card bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-purple-100 text-sm font-medium mb-2">Avg Score</p>
+                <h3 class="text-4xl font-bold">88%</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-star text-3xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stat-card bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-orange-100 text-sm font-medium mb-2">Pending Tasks</p>
+                <h3 class="text-4xl font-bold">3</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-tasks text-3xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <div class="bg-white rounded-2xl shadow-sm p-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-6">Recent Exam Results</h3>
+        <div class="space-y-4">
+            <div class="flex items-center justify-between p-4 border border-gray-200 rounded-xl">
+                <div>
+                    <h4 class="font-semibold text-gray-800">Python Basics Quiz</h4>
+                    <p class="text-sm text-gray-500 mt-1">March 5, 2026</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-2xl font-bold text-green-600">92%</p>
+                    <p class="text-xs text-gray-500">Excellent</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-between p-4 border border-gray-200 rounded-xl">
+                <div>
+                    <h4 class="font-semibold text-gray-800">Data Structures Test</h4>
+                    <p class="text-sm text-gray-500 mt-1">March 1, 2026</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-2xl font-bold text-blue-600">85%</p>
+                    <p class="text-xs text-gray-500">Good</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-2xl shadow-sm p-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-6">Mentor Remarks</h3>
+        <div class="space-y-4">
+            <div class="p-4 bg-green-50 rounded-xl border border-green-200">
+                <div class="flex items-start space-x-3">
+                    <i class="fas fa-check-circle text-green-600 text-xl mt-1"></i>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-800">Excellent Progress</p>
+                        <p class="text-sm text-gray-600 mt-1">Your child is showing great improvement in Python programming. Keep up the good work!</p>
+                        <p class="text-xs text-gray-500 mt-2">- Mentor John, March 8, 2026</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                <div class="flex items-start space-x-3">
+                    <i class="fas fa-info-circle text-blue-600 text-xl mt-1"></i>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-800">Attendance Note</p>
+                        <p class="text-sm text-gray-600 mt-1">Please ensure regular attendance for better learning outcomes.</p>
+                        <p class="text-xs text-gray-500 mt-2">- Mentor John, March 5, 2026</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white rounded-2xl shadow-sm p-6">
+    <h3 class="text-xl font-bold text-gray-800 mb-6">Attendance Overview (Last 30 Days)</h3>
+    <div class="grid grid-cols-7 gap-2">
+        <div class="text-center p-3 bg-green-100 rounded-lg">
+            <p class="text-xs text-gray-600 mb-1">Mon</p>
+            <i class="fas fa-check text-green-600"></i>
+        </div>
+        <div class="text-center p-3 bg-green-100 rounded-lg">
+            <p class="text-xs text-gray-600 mb-1">Tue</p>
+            <i class="fas fa-check text-green-600"></i>
+        </div>
+        <div class="text-center p-3 bg-green-100 rounded-lg">
+            <p class="text-xs text-gray-600 mb-1">Wed</p>
+            <i class="fas fa-check text-green-600"></i>
+        </div>
+        <div class="text-center p-3 bg-red-100 rounded-lg">
+            <p class="text-xs text-gray-600 mb-1">Thu</p>
+            <i class="fas fa-times text-red-600"></i>
+        </div>
+        <div class="text-center p-3 bg-green-100 rounded-lg">
+            <p class="text-xs text-gray-600 mb-1">Fri</p>
+            <i class="fas fa-check text-green-600"></i>
+        </div>
+        <div class="text-center p-3 bg-gray-100 rounded-lg">
+            <p class="text-xs text-gray-600 mb-1">Sat</p>
+            <i class="fas fa-minus text-gray-400"></i>
+        </div>
+        <div class="text-center p-3 bg-gray-100 rounded-lg">
+            <p class="text-xs text-gray-600 mb-1">Sun</p>
+            <i class="fas fa-minus text-gray-400"></i>
+        </div>
+    </div>
+</div>
+{% endblock %}

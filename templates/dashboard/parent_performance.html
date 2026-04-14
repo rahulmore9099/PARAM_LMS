@@ -1,0 +1,169 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Performance - Smart LMS{% endblock %}
+{% block page_title %}Performance{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'parent_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    <a href="{% url 'parent_child_profile' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-child text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">My Child</span>
+    </a>
+    <a href="{% url 'parent_performance' child.id %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Performance</span>
+    </a>
+    <a href="{% url 'parent_attendance' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+    <a href="{% url 'parent_exams' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-list text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Exams</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'parent_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'parent_child_profile' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-child text-xl"></i><span>My Child</span>
+    </a>
+    <a href="{% url 'parent_performance' child.id %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl"></i><span>Performance</span>
+    </a>
+    <a href="{% url 'parent_attendance' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl"></i><span>Attendance</span>
+    </a>
+    <a href="{% url 'parent_exams' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-list text-xl"></i><span>Exams</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-3xl font-bold text-gray-800">{{ child.user.get_full_name }}'s Performance</h2>
+    <p class="text-gray-600 mt-1">Track your child's academic progress and achievements.</p>
+</div>
+
+<div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+    <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+        <i class="fas fa-chart-bar text-blue-600 mr-3"></i>
+        Phase-wise Progress
+    </h3>
+    <div class="space-y-4">
+        {% for phase_data in phases_progress %}
+        <div class="p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <h4 class="font-bold text-gray-800">{{ phase_data.phase.name }}</h4>
+                    <p class="text-sm text-gray-500 mt-1">{{ phase_data.completed }} of {{ phase_data.total }} topics completed</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-2xl font-bold text-blue-600">{{ phase_data.progress }}%</p>
+                </div>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-500" style="width: {{ phase_data.progress }}%"></div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-8 text-gray-500">
+            <i class="fas fa-chart-bar text-4xl mb-3"></i>
+            <p>No progress data available yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-2xl shadow-sm p-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+            <i class="fas fa-file-alt text-blue-600 mr-3"></i>
+            Recent Assignments
+        </h3>
+        <div class="space-y-3">
+            {% for submission in assignments %}
+            <div class="p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-gray-800">{{ submission.assignment.title }}</h4>
+                        <p class="text-sm text-gray-500 mt-1">Submitted: {{ submission.submitted_at|date:"M d, Y" }}</p>
+                    </div>
+                    <div class="ml-4">
+                        {% if submission.status == 'evaluated' %}
+                        <div class="text-right">
+                            <p class="text-lg font-bold text-green-600">{{ submission.marks_obtained }}/{{ submission.assignment.total_marks }}</p>
+                            <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">Evaluated</span>
+                        </div>
+                        {% elif submission.status == 'submitted' %}
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">Pending</span>
+                        {% else %}
+                        <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">{{ submission.status|title }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if submission.feedback %}
+                <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                    <p class="text-sm text-gray-700"><span class="font-semibold">Feedback:</span> {{ submission.feedback }}</p>
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-file-alt text-4xl mb-3"></i>
+                <p>No assignments submitted yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-2xl shadow-sm p-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+            <i class="fas fa-clipboard-list text-blue-600 mr-3"></i>
+            Recent Exams
+        </h3>
+        <div class="space-y-3">
+            {% for attempt in exams %}
+            <div class="p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-gray-800">{{ attempt.exam.title }}</h4>
+                        <p class="text-sm text-gray-500 mt-1">{{ attempt.start_time|date:"M d, Y" }}</p>
+                    </div>
+                    <div class="ml-4 text-right">
+                        {% if attempt.status == 'evaluated' %}
+                        <p class="text-lg font-bold {% if attempt.is_passed %}text-green-600{% else %}text-red-600{% endif %}">
+                            {{ attempt.marks_obtained }}/{{ attempt.exam.total_marks }}
+                        </p>
+                        {% if attempt.is_passed %}
+                        <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">Passed</span>
+                        {% else %}
+                        <span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">Failed</span>
+                        {% endif %}
+                        {% elif attempt.status == 'submitted' %}
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">Pending</span>
+                        {% else %}
+                        <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">{{ attempt.status|title }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-clipboard-list text-4xl mb-3"></i>
+                <p>No exams attempted yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Add Mentor - Smart LMS{% endblock %}
+{% block page_title %}Add New Mentor{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{% url 'admin_mentors' %}" class="text-primary hover:underline flex items-center space-x-2">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back to Mentors</span>
+    </a>
+</div>
+
+<div class="bg-white rounded-xl shadow-sm p-8">
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-800 flex items-center space-x-3">
+            <i class="fas fa-plus-circle text-primary"></i>
+            <span>Add New Mentor</span>
+        </h2>
+        <p class="text-gray-600 mt-2">Fill in the details to create a new mentor</p>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        
+        <div class="border-l-4 border-blue-500 pl-4">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <i class="fas fa-user mr-2"></i>Personal Information
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-user-circle mr-2"></i>First Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="first_name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-user-circle mr-2"></i>Last Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="last_name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-envelope mr-2"></i>Email <span class="text-red-500">*</span>
+                    </label>
+                    <input type="email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-phone mr-2"></i>Phone
+                    </label>
+                    <input type="tel" name="phone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-calendar mr-2"></i>Date of Birth
+                    </label>
+                    <input type="date" name="date_of_birth" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-image mr-2"></i>Profile Picture
+                    </label>
+                    <input type="file" name="profile_picture" accept="image/*" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+                
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-map-marker-alt mr-2"></i>Address
+                    </label>
+                    <textarea name="address" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-l-4 border-green-500 pl-4">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <i class="fas fa-lock mr-2"></i>Account Information
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-user-tag mr-2"></i>Username <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="username" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-key mr-2"></i>Password <span class="text-red-500">*</span>
+                    </label>
+                    <input type="password" name="password" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-end space-x-4 pt-6 border-t">
+            <a href="{% url 'admin_mentors' %}" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                <i class="fas fa-times mr-2"></i>Cancel
+            </a>
+            <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-blue-700 transition">
+                <i class="fas fa-save mr-2"></i>Save Mentor
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

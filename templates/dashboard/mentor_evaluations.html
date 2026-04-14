@@ -1,0 +1,187 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Evaluations - Smart LMS{% endblock %}
+{% block page_title %}Evaluations{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'mentor_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    <a href="{% url 'mentor_students' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-users text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">My Students</span>
+    </a>
+    <a href="{% url 'mentor_evaluations' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Evaluations</span>
+    </a>
+    <a href="{% url 'mentor_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-alt text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'mentor_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'mentor_students' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-users text-xl"></i><span>My Students</span>
+    </a>
+    <a href="{% url 'mentor_evaluations' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-check text-xl"></i><span>Evaluations</span>
+    </a>
+    <a href="{% url 'mentor_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-alt text-xl"></i><span>Attendance</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-3xl font-bold text-gray-800">Pending Evaluations</h2>
+    <p class="text-gray-600 mt-1">Grade assignments and evaluate exams</p>
+</div>
+
+<!-- Statistics -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-orange-100 text-sm font-medium mb-2">Pending Assignments</p>
+                <h3 class="text-4xl font-bold">{{ pending_assignments.count }}</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-tasks text-3xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-purple-100 text-sm font-medium mb-2">Pending Exams</p>
+                <h3 class="text-4xl font-bold">{{ pending_exams.count }}</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-clipboard-list text-3xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Assignments -->
+<div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+    <h3 class="text-xl font-bold text-gray-800 mb-6">Pending Assignments</h3>
+    
+    {% if pending_assignments %}
+    <div class="space-y-4">
+        {% for submission in pending_assignments %}
+        <div class="border border-gray-200 rounded-xl p-6 hover:shadow-md transition">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div class="flex-1">
+                    <div class="flex items-start gap-3 mb-3">
+                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-file-alt text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-lg font-bold text-gray-800 mb-1">{{ submission.assignment.title }}</h4>
+                            <div class="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+                                <span><i class="fas fa-user mr-1"></i>{{ submission.student.user.get_full_name }}</span>
+                                <span><i class="fas fa-bookmark mr-1"></i>{{ submission.assignment.topic.name }}</span>
+                                <span><i class="fas fa-calendar mr-1"></i>Submitted: {{ submission.submitted_at|date:"M d, Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if submission.submission_text %}
+                    <div class="p-4 bg-gray-50 rounded-lg mb-3">
+                        <p class="text-sm text-gray-700">{{ submission.submission_text|truncatewords:30 }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="flex flex-wrap gap-2">
+                        {% if submission.file %}
+                        <a href="{{ submission.file.url }}" target="_blank" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-semibold hover:bg-blue-200">
+                            <i class="fas fa-paperclip mr-1"></i>View File
+                        </a>
+                        {% endif %}
+                        {% if submission.github_link %}
+                        <a href="{{ submission.github_link }}" target="_blank" class="px-3 py-1 bg-gray-800 text-white rounded-lg text-sm font-semibold hover:bg-gray-900">
+                            <i class="fab fa-github mr-1"></i>GitHub
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="flex flex-col gap-2 lg:w-48">
+                    <span class="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg text-sm font-semibold text-center">
+                        <i class="fas fa-clock mr-1"></i>Pending Review
+                    </span>
+                    <a href="{% url 'evaluate_assignment' submission.id %}" class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold text-center hover:bg-blue-700">
+                        <i class="fas fa-check-circle mr-1"></i>Grade Now
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <i class="fas fa-check-circle text-6xl text-green-300 mb-4"></i>
+        <h3 class="text-xl font-bold text-gray-800 mb-2">All Caught Up!</h3>
+        <p class="text-gray-600">No pending assignments to grade.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Pending Exams -->
+<div class="bg-white rounded-2xl shadow-sm p-6">
+    <h3 class="text-xl font-bold text-gray-800 mb-6">Pending Exams</h3>
+    
+    {% if pending_exams %}
+    <div class="space-y-4">
+        {% for attempt in pending_exams %}
+        <div class="border border-gray-200 rounded-xl p-6 hover:shadow-md transition">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div class="flex-1">
+                    <div class="flex items-start gap-3 mb-3">
+                        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-clipboard-list text-purple-600 text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-lg font-bold text-gray-800 mb-1">{{ attempt.exam.title }}</h4>
+                            <div class="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+                                <span><i class="fas fa-user mr-1"></i>{{ attempt.student.user.get_full_name }}</span>
+                                <span><i class="fas fa-calendar mr-1"></i>Submitted: {{ attempt.end_time|date:"M d, Y" }}</span>
+                                <span><i class="fas fa-star mr-1"></i>Total: {{ attempt.exam.total_marks }} marks</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col gap-2 lg:w-48">
+                    <span class="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg text-sm font-semibold text-center">
+                        <i class="fas fa-clock mr-1"></i>Pending Review
+                    </span>
+                    <button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-blue-700">
+                        <i class="fas fa-check-circle mr-1"></i>Evaluate
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <i class="fas fa-check-circle text-6xl text-green-300 mb-4"></i>
+        <h3 class="text-xl font-bold text-gray-800 mb-2">All Caught Up!</h3>
+        <p class="text-gray-600">No pending exams to evaluate.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

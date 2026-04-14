@@ -1,0 +1,146 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Announcements - Smart LMS{% endblock %}
+{% block page_title %}Announcements{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'admin_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    <a href="{% url 'admin_students' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-user-graduate text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Students</span>
+    </a>
+    <a href="{% url 'admin_mentors' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chalkboard-teacher text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Mentors</span>
+    </a>
+    <a href="{% url 'admin_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-book-open text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Courses</span>
+    </a>
+    <a href="{% url 'admin_batches' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-users text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Batches</span>
+    </a>
+    <a href="{% url 'admin_exams' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-list text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Exams</span>
+    </a>
+    <a href="{% url 'admin_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+    <a href="{% url 'admin_announcements' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-bullhorn text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Announcements</span>
+    </a>
+    <a href="{% url 'admin_reports' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-bar text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Reports</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'admin_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'admin_students' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-user-graduate text-xl"></i><span>Students</span>
+    </a>
+    <a href="{% url 'admin_mentors' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chalkboard-teacher text-xl"></i><span>Mentors</span>
+    </a>
+    <a href="{% url 'admin_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-book-open text-xl"></i><span>Courses</span>
+    </a>
+    <a href="{% url 'admin_batches' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-users text-xl"></i><span>Batches</span>
+    </a>
+    <a href="{% url 'admin_exams' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-list text-xl"></i><span>Exams</span>
+    </a>
+    <a href="{% url 'admin_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl"></i><span>Attendance</span>
+    </a>
+    <a href="{% url 'admin_announcements' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-bullhorn text-xl"></i><span>Announcements</span>
+    </a>
+    <a href="{% url 'admin_reports' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-bar text-xl"></i><span>Reports</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h2 class="text-2xl font-bold text-gray-800">Announcements</h2>
+        <p class="text-gray-600 mt-1">Manage all announcements</p>
+    </div>
+    <a href="{% url 'admin_add_announcement' %}" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-blue-700 transition flex items-center space-x-2">
+        <i class="fas fa-plus"></i>
+        <span>New Announcement</span>
+    </a>
+</div>
+
+<!-- Announcements List -->
+<div class="space-y-4">
+    {% for announcement in announcements %}
+    <div class="bg-white rounded-xl shadow-sm p-6 {% if announcement.is_important %}border-l-4 border-red-500{% endif %}">
+        <div class="flex items-start justify-between">
+            <div class="flex-1">
+                <div class="flex items-center space-x-3 mb-2">
+                    <h3 class="text-xl font-bold text-gray-800">{{ announcement.title }}</h3>
+                    {% if announcement.is_important %}
+                    <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">
+                        <i class="fas fa-exclamation-circle mr-1"></i>Important
+                    </span>
+                    {% endif %}
+                </div>
+                <p class="text-gray-600 mb-4">{{ announcement.content }}</p>
+                <div class="flex items-center space-x-4 text-sm text-gray-500">
+                    <span><i class="fas fa-user mr-1"></i>{{ announcement.created_by.get_full_name }}</span>
+                    <span><i class="fas fa-calendar mr-1"></i>{{ announcement.created_at|date:"M d, Y H:i" }}</span>
+                    {% if announcement.batch %}
+                    <span><i class="fas fa-users mr-1"></i>{{ announcement.batch.name }}</span>
+                    {% else %}
+                    <span><i class="fas fa-globe mr-1"></i>All Batches</span>
+                    {% endif %}
+                </div>
+            </div>
+            <a href="{% url 'admin_delete_announcement' announcement.id %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm">
+                <i class="fas fa-trash"></i>
+            </a>
+        </div>
+    </div>
+    {% empty %}
+    <div class="bg-white rounded-xl shadow-sm p-12 text-center">
+        <i class="fas fa-bullhorn text-6xl text-gray-300 mb-4"></i>
+        <p class="text-lg text-gray-500">No announcements yet</p>
+        <a href="{% url 'admin_add_announcement' %}" class="text-primary hover:underline mt-2 inline-block">Create your first announcement</a>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if announcements.has_other_pages %}
+<div class="mt-6 flex items-center justify-center space-x-2">
+    {% if announcements.has_previous %}
+    <a href="?page={{ announcements.previous_page_number }}" class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50">Previous</a>
+    {% endif %}
+    
+    {% for num in announcements.paginator.page_range %}
+    <a href="?page={{ num }}" class="px-4 py-2 {% if announcements.number == num %}bg-primary text-white{% else %}bg-white border{% endif %} rounded-lg hover:bg-gray-50">{{ num }}</a>
+    {% endfor %}
+    
+    {% if announcements.has_next %}
+    <a href="?page={{ announcements.next_page_number }}" class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50">Next</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

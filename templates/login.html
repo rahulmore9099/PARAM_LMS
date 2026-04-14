@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center gradient-bg py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full">
+        <!-- Logo -->
+        <div class="text-center mb-8 animate-slide-up">
+            <a href="/" class="inline-flex items-center space-x-2 mb-4">
+                <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg">
+                    <i class="fas fa-graduation-cap text-primary text-3xl"></i>
+                </div>
+            </a>
+            <h2 class="text-4xl font-bold text-white mb-2">Welcome Back!</h2>
+            <p class="text-blue-100">Sign in to continue your learning journey</p>
+        </div>
+        
+        <!-- Login Form -->
+        <div class="bg-white rounded-2xl shadow-2xl p-8 animate-scale-in">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+            
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
+                
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">
+                        <i class="fas fa-user mr-2 text-primary"></i>Username or Email
+                    </label>
+                    <input type="text" name="username" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                           placeholder="Enter your username">
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">
+                        <i class="fas fa-lock mr-2 text-primary"></i>Password
+                    </label>
+                    <input type="password" name="password" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                           placeholder="Enter your password">
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="remember" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary">
+                        <span class="ml-2 text-gray-700">Remember me</span>
+                    </label>
+                    <a href="/forgot-password/" class="text-primary hover:text-blue-700 font-semibold">Forgot Password?</a>
+                </div>
+                
+                <button type="submit" 
+                        class="w-full bg-primary text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition hover-lift">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Sign In
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-gray-600">Don't have an account? <a href="/contact/" class="text-primary hover:text-blue-700 font-semibold">Contact Us</a></p>
+            </div>
+            
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <p class="text-center text-gray-600 mb-4">Or sign in as</p>
+                <div class="grid grid-cols-2 gap-4">
+                    <button class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                        <i class="fas fa-user-graduate text-primary mr-2"></i>
+                        <span class="text-gray-700 font-semibold">Student</span>
+                    </button>
+                    <button class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                        <i class="fas fa-chalkboard-teacher text-accent mr-2"></i>
+                        <span class="text-gray-700 font-semibold">Mentor</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Back to Home -->
+        <div class="text-center mt-6">
+            <a href="/" class="text-white hover:text-blue-200 transition">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

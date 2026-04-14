@@ -1,0 +1,165 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Evaluate Assignment - Smart LMS{% endblock %}
+{% block page_title %}Evaluate Assignment{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'mentor_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    <a href="{% url 'mentor_students' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-users text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">My Students</span>
+    </a>
+    <a href="{% url 'mentor_evaluations' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Evaluations</span>
+    </a>
+    <a href="{% url 'mentor_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-alt text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'mentor_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'mentor_students' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-users text-xl"></i><span>My Students</span>
+    </a>
+    <a href="{% url 'mentor_evaluations' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-check text-xl"></i><span>Evaluations</span>
+    </a>
+    <a href="{% url 'mentor_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-alt text-xl"></i><span>Attendance</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{% url 'mentor_evaluations' %}" class="text-primary hover:text-blue-700 font-semibold mb-2 inline-block">
+        <i class="fas fa-arrow-left mr-2"></i>Back to Evaluations
+    </a>
+    <h2 class="text-3xl font-bold text-gray-800">Evaluate Assignment</h2>
+    <p class="text-gray-600 mt-1">Grade and provide feedback</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Assignment Details -->
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-2xl shadow-sm p-6 sticky top-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Assignment Details</h3>
+            
+            <div class="space-y-4">
+                <div class="p-4 bg-blue-50 rounded-xl">
+                    <p class="text-sm text-gray-600 mb-1">Student</p>
+                    <p class="font-semibold text-gray-800">{{ submission.student.user.get_full_name }}</p>
+                    <p class="text-sm text-gray-600">{{ submission.student.enrollment_number }}</p>
+                </div>
+                
+                <div class="p-4 bg-gray-50 rounded-xl">
+                    <p class="text-sm text-gray-600 mb-1">Assignment</p>
+                    <p class="font-semibold text-gray-800">{{ submission.assignment.title }}</p>
+                </div>
+                
+                <div class="p-4 bg-gray-50 rounded-xl">
+                    <p class="text-sm text-gray-600 mb-1">Topic</p>
+                    <p class="font-semibold text-gray-800">{{ submission.assignment.topic.name }}</p>
+                </div>
+                
+                <div class="p-4 bg-gray-50 rounded-xl">
+                    <p class="text-sm text-gray-600 mb-1">Submitted On</p>
+                    <p class="font-semibold text-gray-800">{{ submission.submitted_at|date:"M d, Y - h:i A" }}</p>
+                </div>
+                
+                <div class="p-4 bg-gray-50 rounded-xl">
+                    <p class="text-sm text-gray-600 mb-1">Max Marks</p>
+                    <p class="text-3xl font-bold text-primary">{{ submission.assignment.max_marks }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Submission & Grading -->
+    <div class="lg:col-span-2">
+        <!-- Student Submission -->
+        <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Student Submission</h3>
+            
+            <div class="p-4 bg-gray-50 rounded-xl mb-4">
+                <h4 class="font-semibold text-gray-800 mb-2">Assignment Description:</h4>
+                <p class="text-gray-700">{{ submission.assignment.description }}</p>
+            </div>
+            
+            {% if submission.submission_text %}
+            <div class="p-4 bg-blue-50 rounded-xl mb-4">
+                <h4 class="font-semibold text-gray-800 mb-2">Student Answer:</h4>
+                <p class="text-gray-700 whitespace-pre-line">{{ submission.submission_text }}</p>
+            </div>
+            {% endif %}
+            
+            <div class="flex flex-wrap gap-3">
+                {% if submission.file %}
+                <a href="{{ submission.file.url }}" target="_blank" class="px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-blue-700 transition">
+                    <i class="fas fa-download mr-2"></i>Download Submission File
+                </a>
+                {% endif %}
+                
+                {% if submission.github_link %}
+                <a href="{{ submission.github_link }}" target="_blank" class="px-6 py-3 bg-gray-800 text-white rounded-xl font-semibold hover:bg-gray-900 transition">
+                    <i class="fab fa-github mr-2"></i>View on GitHub
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Grading Form -->
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Grade Submission</h3>
+            
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-star text-yellow-500 mr-2"></i>Marks Obtained (out of {{ submission.assignment.max_marks }})
+                    </label>
+                    <input type="number" name="marks" min="0" max="{{ submission.assignment.max_marks }}" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Enter marks" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-comment-alt mr-2"></i>Feedback
+                    </label>
+                    <textarea name="feedback" rows="6" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Provide detailed feedback to help the student improve..." required></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-check-circle mr-2"></i>Status
+                    </label>
+                    <select name="status" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option value="evaluated">Approved - Good Work</option>
+                        <option value="resubmit">Needs Improvement - Resubmit Required</option>
+                    </select>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="submit" class="flex-1 px-6 py-3 bg-green-500 text-white rounded-xl font-semibold hover:bg-green-600 transition">
+                        <i class="fas fa-check-circle mr-2"></i>Submit Grade
+                    </button>
+                    <a href="{% url 'mentor_evaluations' %}" class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition text-center">
+                        <i class="fas fa-times mr-2"></i>Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

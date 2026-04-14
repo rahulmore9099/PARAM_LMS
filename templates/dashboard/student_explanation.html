@@ -1,0 +1,161 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Video Explanations - Smart LMS{% endblock %}
+{% block page_title %}Video Explanations{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'student_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    
+    <a href="{% url 'student_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-book-open text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Curriculum</span>
+    </a>
+    
+    <a href="{% url 'student_explanation' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-play-circle text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Explanation</span>
+    </a>
+    
+    <a href="{% url 'student_ai_help' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-robot text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">AI Help</span>
+    </a>
+    
+    <a href="{% url 'student_assignments' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-tasks text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Assignments</span>
+    </a>
+    
+    <a href="{% url 'student_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-alt text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+    
+    <a href="{% url 'student_progress' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Progress</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'student_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'student_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-book-open text-xl"></i><span>Curriculum</span>
+    </a>
+    <a href="{% url 'student_explanation' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-play-circle text-xl"></i><span>Explanation</span>
+    </a>
+    <a href="{% url 'student_ai_help' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-robot text-xl"></i><span>AI Help</span>
+    </a>
+    <a href="{% url 'student_assignments' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-tasks text-xl"></i><span>Assignments</span>
+    </a>
+    <a href="{% url 'student_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-alt text-xl"></i><span>Attendance</span>
+    </a>
+    <a href="{% url 'student_progress' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl"></i><span>Progress</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-3xl font-bold text-gray-800">Video Explanations</h2>
+    <p class="text-gray-600 mt-1">Watch video tutorials for each topic</p>
+</div>
+
+<!-- Video Library -->
+<div class="space-y-4">
+    {% if topics_with_videos %}
+        {% for item in topics_with_videos %}
+        <div class="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition {% if not item.is_unlocked %}opacity-60{% endif %}">
+            <div class="flex flex-col lg:flex-row gap-6">
+                <!-- Video Thumbnail -->
+                <div class="lg:w-80 flex-shrink-0">
+                    <div class="relative aspect-video bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl overflow-hidden">
+                        {% if item.topic.video_url %}
+                        <img src="https://img.youtube.com/vi/{{ item.topic.video_url|slice:'-11:' }}/maxresdefault.jpg" alt="{{ item.topic.name }}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/640x360/3b82f6/ffffff?text=Video+Tutorial'">
+                        {% else %}
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <i class="fas fa-play-circle text-white text-6xl opacity-80"></i>
+                        </div>
+                        {% endif %}
+                        
+                        {% if item.is_completed %}
+                        <div class="absolute top-3 right-3 px-3 py-1 bg-green-500 text-white rounded-lg text-sm font-semibold">
+                            <i class="fas fa-check-circle mr-1"></i>Watched
+                        </div>
+                        {% endif %}
+                        
+                        {% if not item.is_unlocked %}
+                        <div class="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
+                            <div class="text-center text-white">
+                                <i class="fas fa-lock text-4xl mb-2"></i>
+                                <p class="text-sm font-semibold">Locked</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Video Info -->
+                <div class="flex-1">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">{{ item.topic.name }}</h3>
+                            <div class="flex flex-wrap items-center gap-3 text-sm text-gray-600 mb-3">
+                                <span><i class="fas fa-layer-group text-primary mr-1"></i>{{ item.phase.name }}</span>
+                                <span><i class="fas fa-book text-green-600 mr-1"></i>{{ item.module.name }}</span>
+                                <span><i class="fas fa-clock text-orange-600 mr-1"></i>{{ item.topic.estimated_hours }} hour{% if item.topic.estimated_hours > 1 %}s{% endif %}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-600 mb-4">{{ item.topic.theory_content|default:"Learn about this topic through our comprehensive video tutorial." }}</p>
+                    
+                    <div class="flex flex-wrap gap-3">
+                        {% if item.is_unlocked %}
+                            {% if item.topic.video_url %}
+                            <a href="{% url 'watch_video' item.topic.id %}" class="px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-blue-700 transition">
+                                <i class="fas fa-play mr-2"></i>{% if item.is_completed %}Watch Again{% else %}Watch Now{% endif %}
+                            </a>
+                            {% else %}
+                            <button class="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold cursor-not-allowed" disabled>
+                                <i class="fas fa-video-slash mr-2"></i>Video Coming Soon
+                            </button>
+                            {% endif %}
+                            
+                            {% if item.topic.practical_content %}
+                            <button class="px-6 py-3 bg-green-100 text-green-700 rounded-xl font-semibold hover:bg-green-200 transition">
+                                <i class="fas fa-code mr-2"></i>Practice Code
+                            </button>
+                            {% endif %}
+                        {% else %}
+                            <button class="px-6 py-3 bg-gray-100 text-gray-500 rounded-xl font-semibold cursor-not-allowed" disabled>
+                                <i class="fas fa-lock mr-2"></i>Complete Previous Topics
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="bg-white rounded-2xl shadow-sm p-12 text-center">
+            <i class="fas fa-video text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">No Videos Available</h3>
+            <p class="text-gray-600">Video tutorials will be added soon for your course.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,193 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}My Attendance - Smart LMS{% endblock %}
+{% block page_title %}My Attendance{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'student_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    <a href="{% url 'student_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-book-open text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">My Courses</span>
+    </a>
+    <a href="{% url 'student_assignments' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-tasks text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Assignments</span>
+    </a>
+    <a href="{% url 'student_exams' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Exams</span>
+    </a>
+    <a href="{% url 'student_attendance' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-alt text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+    <a href="{% url 'student_progress' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Progress</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'student_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'student_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-book-open text-xl"></i><span>My Courses</span>
+    </a>
+    <a href="{% url 'student_assignments' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-tasks text-xl"></i><span>Assignments</span>
+    </a>
+    <a href="{% url 'student_exams' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-check text-xl"></i><span>Exams</span>
+    </a>
+    <a href="{% url 'student_attendance' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-alt text-xl"></i><span>Attendance</span>
+    </a>
+    <a href="{% url 'student_progress' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl"></i><span>Progress</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-3xl font-bold text-gray-800">My Attendance</h2>
+    <p class="text-gray-600 mt-1">Track your attendance and mark your presence</p>
+</div>
+
+<!-- Statistics Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-green-100 text-sm font-medium mb-2">Present Days</p>
+                <h3 class="text-4xl font-bold">{{ present_days }}</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-check-circle text-3xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-red-100 text-sm font-medium mb-2">Absent Days</p>
+                <h3 class="text-4xl font-bold">{{ absent_days }}</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-times-circle text-3xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-yellow-100 text-sm font-medium mb-2">Leave Days</p>
+                <h3 class="text-4xl font-bold">{{ leave_days }}</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-calendar-times text-3xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-blue-100 text-sm font-medium mb-2">Attendance %</p>
+                <h3 class="text-4xl font-bold">{{ attendance_percentage }}%</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-percentage text-3xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mark Attendance Button -->
+<div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+            <h3 class="text-xl font-bold text-gray-800">Mark Today's Attendance</h3>
+            <p class="text-gray-600 mt-1">Click the button to mark your attendance with GPS location</p>
+        </div>
+        <a href="{% url 'mark_my_attendance' %}" class="px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-blue-700 transition whitespace-nowrap">
+            <i class="fas fa-map-marker-alt mr-2"></i>Mark Attendance
+        </a>
+    </div>
+</div>
+
+<!-- Attendance Records -->
+<div class="bg-white rounded-2xl shadow-sm p-6">
+    <h3 class="text-xl font-bold text-gray-800 mb-6">Attendance History</h3>
+    
+    {% if attendance_records %}
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-gray-200">
+                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Date</th>
+                    <th class="text-left py-3 px-4 font-semibold text-gray-700">In Time</th>
+                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Out Time</th>
+                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Hours</th>
+                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
+                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Location</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in attendance_records %}
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="py-3 px-4 text-gray-800">{{ record.date|date:"M d, Y" }}</td>
+                    <td class="py-3 px-4 text-gray-600">{% if record.in_time %}{{ record.in_time }}{% else %}--{% endif %}</td>
+                    <td class="py-3 px-4 text-gray-600">{% if record.out_time %}{{ record.out_time }}{% else %}--{% endif %}</td>
+                    <td class="py-3 px-4 text-gray-600">
+                        {% if record.in_time and record.out_time %}
+                            {% widthratio record.out_time.hour 1 1 %}:{% widthratio record.out_time.minute 1 1 %} - {% widthratio record.in_time.hour 1 1 %}:{% widthratio record.in_time.minute 1 1 %}
+                        {% else %}
+                            --
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4">
+                        {% if record.status == 'present' %}
+                        <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                            <i class="fas fa-check-circle mr-1"></i>Present
+                        </span>
+                        {% elif record.status == 'absent' %}
+                        <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">
+                            <i class="fas fa-times-circle mr-1"></i>Absent
+                        </span>
+                        {% elif record.status == 'leave' %}
+                        <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">
+                            <i class="fas fa-calendar-times mr-1"></i>Leave
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4 text-gray-600 text-sm">
+                        {% if record.in_location_address %}
+                        <i class="fas fa-map-marker-alt text-primary mr-1"></i>{{ record.in_location_address|truncatewords:5 }}
+                        {% else %}
+                        --
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <i class="fas fa-calendar-alt text-6xl text-gray-300 mb-4"></i>
+        <h3 class="text-xl font-bold text-gray-800 mb-2">No Attendance Records</h3>
+        <p class="text-gray-600">Start marking your attendance to see records here.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,178 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Child Profile - Smart LMS{% endblock %}
+{% block page_title %}Child Profile{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'parent_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    <a href="{% url 'parent_child_profile' child.id %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-child text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">My Child</span>
+    </a>
+    <a href="{% url 'parent_performance' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Performance</span>
+    </a>
+    <a href="{% url 'parent_attendance' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+    <a href="{% url 'parent_exams' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-list text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Exams</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'parent_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'parent_child_profile' child.id %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-child text-xl"></i><span>My Child</span>
+    </a>
+    <a href="{% url 'parent_performance' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl"></i><span>Performance</span>
+    </a>
+    <a href="{% url 'parent_attendance' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl"></i><span>Attendance</span>
+    </a>
+    <a href="{% url 'parent_exams' child.id %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-list text-xl"></i><span>Exams</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-3xl font-bold text-gray-800">{{ child.user.get_full_name }}'s Profile</h2>
+    <p class="text-gray-600 mt-1">View your child's complete profile and learning details.</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <div class="text-center">
+                <div class="w-32 h-32 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mx-auto flex items-center justify-center text-white text-5xl font-bold">
+                    {{ child.user.first_name|first }}{{ child.user.last_name|first }}
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mt-4">{{ child.user.get_full_name }}</h3>
+                <p class="text-gray-500 mt-1">{{ child.enrollment_number }}</p>
+                
+                <div class="mt-6 space-y-3">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <span class="text-gray-600 text-sm">Status</span>
+                        <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">Active</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <span class="text-gray-600 text-sm">Progress</span>
+                        <span class="text-blue-600 font-bold">{{ progress }}%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fas fa-user text-blue-600 mr-3"></i>
+                Personal Information
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="text-sm text-gray-500">Full Name</label>
+                    <p class="text-gray-800 font-semibold mt-1">{{ child.user.get_full_name }}</p>
+                </div>
+                <div>
+                    <label class="text-sm text-gray-500">Email</label>
+                    <p class="text-gray-800 font-semibold mt-1">{{ child.user.email }}</p>
+                </div>
+                <div>
+                    <label class="text-sm text-gray-500">Phone</label>
+                    <p class="text-gray-800 font-semibold mt-1">{{ child.phone|default:"Not provided" }}</p>
+                </div>
+                <div>
+                    <label class="text-sm text-gray-500">Date of Birth</label>
+                    <p class="text-gray-800 font-semibold mt-1">{{ child.date_of_birth|date:"M d, Y"|default:"Not provided" }}</p>
+                </div>
+                <div>
+                    <label class="text-sm text-gray-500">Gender</label>
+                    <p class="text-gray-800 font-semibold mt-1">{{ child.get_gender_display|default:"Not provided" }}</p>
+                </div>
+                <div>
+                    <label class="text-sm text-gray-500">Blood Group</label>
+                    <p class="text-gray-800 font-semibold mt-1">{{ child.blood_group|default:"Not provided" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fas fa-graduation-cap text-blue-600 mr-3"></i>
+                Academic Information
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="text-sm text-gray-500">Enrollment Number</label>
+                    <p class="text-gray-800 font-semibold mt-1">{{ child.enrollment_number }}</p>
+                </div>
+                <div>
+                    <label class="text-sm text-gray-500">Admission Date</label>
+                    <p class="text-gray-800 font-semibold mt-1">{{ child.admission_date|date:"M d, Y" }}</p>
+                </div>
+                <div>
+                    <label class="text-sm text-gray-500">Course</label>
+                    <p class="text-gray-800 font-semibold mt-1">{{ child.course.name|default:"Not assigned" }}</p>
+                </div>
+                <div>
+                    <label class="text-sm text-gray-500">Batch</label>
+                    <p class="text-gray-800 font-semibold mt-1">{{ child.batch.name|default:"Not assigned" }}</p>
+                </div>
+                <div>
+                    <label class="text-sm text-gray-500">Current Phase</label>
+                    <p class="text-gray-800 font-semibold mt-1">{{ child.current_phase.name|default:"Phase 1" }}</p>
+                </div>
+                <div>
+                    <label class="text-sm text-gray-500">Mentor</label>
+                    <p class="text-gray-800 font-semibold mt-1">{{ child.mentor.get_full_name|default:"Not assigned" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fas fa-chart-pie text-blue-600 mr-3"></i>
+                Learning Progress
+            </h3>
+            <div class="space-y-4">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-700 font-medium">Overall Progress</span>
+                        <span class="text-blue-600 font-bold">{{ progress }}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-500" style="width: {{ progress }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mt-6">
+                    <div class="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                        <p class="text-sm text-gray-600">Completed Topics</p>
+                        <p class="text-2xl font-bold text-blue-600 mt-1">{{ completed_topics }}</p>
+                    </div>
+                    <div class="p-4 bg-purple-50 rounded-xl border border-purple-200">
+                        <p class="text-sm text-gray-600">Total Topics</p>
+                        <p class="text-2xl font-bold text-purple-600 mt-1">{{ total_topics }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

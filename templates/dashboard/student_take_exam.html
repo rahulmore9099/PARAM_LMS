@@ -1,0 +1,134 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Take Exam - Smart LMS{% endblock %}
+{% block page_title %}Take Exam{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'student_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    <a href="{% url 'student_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-book-open text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">My Courses</span>
+    </a>
+    <a href="{% url 'student_assignments' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-tasks text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Assignments</span>
+    </a>
+    <a href="{% url 'student_exams' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Exams</span>
+    </a>
+    <a href="{% url 'student_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-alt text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+    <a href="{% url 'student_progress' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Progress</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'student_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'student_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-book-open text-xl"></i><span>My Courses</span>
+    </a>
+    <a href="{% url 'student_assignments' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-tasks text-xl"></i><span>Assignments</span>
+    </a>
+    <a href="{% url 'student_exams' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-check text-xl"></i><span>Exams</span>
+    </a>
+    <a href="{% url 'student_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-alt text-xl"></i><span>Attendance</span>
+    </a>
+    <a href="{% url 'student_progress' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl"></i><span>Progress</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div x-data="{ timeLeft: {{ exam.duration_minutes }} * 60 }" x-init="setInterval(() => { if(timeLeft > 0) timeLeft-- }, 1000)">
+    <!-- Timer Bar -->
+    <div class="bg-white rounded-2xl shadow-sm p-4 mb-6 sticky top-0 z-10">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">{{ exam.title }}</h2>
+                <p class="text-sm text-gray-600">{{ exam.get_exam_type_display }} - {{ exam.total_marks }} marks</p>
+            </div>
+            <div class="text-right">
+                <p class="text-sm text-gray-600 mb-1">Time Remaining</p>
+                <p class="text-3xl font-bold" :class="timeLeft < 300 ? 'text-red-600' : 'text-primary'" x-text="Math.floor(timeLeft/60) + ':' + (timeLeft%60).toString().padStart(2, '0')"></p>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" class="space-y-6">
+        {% csrf_token %}
+        
+        {% for question in questions %}
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <div class="flex items-start gap-4 mb-4">
+                <div class="w-10 h-10 bg-primary text-white rounded-lg flex items-center justify-center font-bold flex-shrink-0">
+                    {{ forloop.counter }}
+                </div>
+                <div class="flex-1">
+                    <p class="text-lg font-semibold text-gray-800 mb-2">{{ question.question_text }}</p>
+                    <p class="text-sm text-gray-600">
+                        <i class="fas fa-star text-yellow-500 mr-1"></i>{{ question.marks }} marks
+                    </p>
+                </div>
+            </div>
+            
+            {% if question.question_type == 'mcq' %}
+            <div class="space-y-3 ml-14">
+                <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl hover:border-primary cursor-pointer transition">
+                    <input type="radio" name="mcq_{{ question.id }}" value="A" class="w-5 h-5 text-primary">
+                    <span class="ml-3 text-gray-700">A. {{ question.option_a }}</span>
+                </label>
+                <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl hover:border-primary cursor-pointer transition">
+                    <input type="radio" name="mcq_{{ question.id }}" value="B" class="w-5 h-5 text-primary">
+                    <span class="ml-3 text-gray-700">B. {{ question.option_b }}</span>
+                </label>
+                <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl hover:border-primary cursor-pointer transition">
+                    <input type="radio" name="mcq_{{ question.id }}" value="C" class="w-5 h-5 text-primary">
+                    <span class="ml-3 text-gray-700">C. {{ question.option_c }}</span>
+                </label>
+                <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl hover:border-primary cursor-pointer transition">
+                    <input type="radio" name="mcq_{{ question.id }}" value="D" class="w-5 h-5 text-primary">
+                    <span class="ml-3 text-gray-700">D. {{ question.option_d }}</span>
+                </label>
+            </div>
+            {% elif question.question_type == 'coding' %}
+            <div class="ml-14">
+                <textarea name="question_{{ question.id }}" rows="10" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent font-mono text-sm" placeholder="Write your code here...">{{ question.starter_code }}</textarea>
+            </div>
+            {% else %}
+            <div class="ml-14">
+                <textarea name="question_{{ question.id }}" rows="6" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Write your answer here..."></textarea>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button type="submit" class="flex-1 px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-blue-700 transition">
+                    <i class="fas fa-paper-plane mr-2"></i>Submit Exam
+                </button>
+                <a href="{% url 'student_exams' %}" class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition text-center">
+                    <i class="fas fa-times mr-2"></i>Cancel
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

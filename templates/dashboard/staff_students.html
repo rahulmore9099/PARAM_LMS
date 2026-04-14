@@ -1,0 +1,161 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}College Students - Smart LMS{% endblock %}
+{% block page_title %}College Students{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'staff_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    <a href="{% url 'staff_students' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-users text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">College Students</span>
+    </a>
+    <a href="{% url 'staff_reports' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-bar text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Reports</span>
+    </a>
+    <a href="{% url 'staff_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+    <a href="{% url 'staff_leave_requests' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-file-alt text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Leave Requests</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'staff_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'staff_students' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-users text-xl"></i><span>College Students</span>
+    </a>
+    <a href="{% url 'staff_reports' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-bar text-xl"></i><span>Reports</span>
+    </a>
+    <a href="{% url 'staff_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl"></i><span>Attendance</span>
+    </a>
+    <a href="{% url 'staff_leave_requests' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-file-alt text-xl"></i><span>Leave Requests</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-3xl font-bold text-gray-800">College Students</h2>
+    <p class="text-gray-600 mt-1">View and manage all college students.</p>
+</div>
+
+<div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+    <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+            <input type="text" name="search" value="{{ search }}" placeholder="Search by name or enrollment..." 
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+        <div>
+            <select name="course" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">All Courses</option>
+                {% for course in courses %}
+                <option value="{{ course.id }}" {% if course_filter == course.id|stringformat:"s" %}selected{% endif %}>{{ course.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <select name="batch" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">All Batches</option>
+                {% for batch in batches %}
+                <option value="{{ batch.id }}" {% if batch_filter == batch.id|stringformat:"s" %}selected{% endif %}>{{ batch.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="flex space-x-2">
+            <button type="submit" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-search mr-2"></i> Search
+            </button>
+            <a href="{% url 'staff_students' %}" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                <i class="fas fa-redo"></i>
+            </a>
+        </div>
+    </form>
+</div>
+
+<div class="bg-white rounded-2xl shadow-sm p-6">
+    <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-bold text-gray-800">All Students ({{ students_data|length }})</h3>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-gray-200">
+                    <th class="text-left py-4 px-4 font-semibold text-gray-700">Student</th>
+                    <th class="text-left py-4 px-4 font-semibold text-gray-700">Enrollment</th>
+                    <th class="text-left py-4 px-4 font-semibold text-gray-700">Course</th>
+                    <th class="text-left py-4 px-4 font-semibold text-gray-700">Batch</th>
+                    <th class="text-left py-4 px-4 font-semibold text-gray-700">Mentor</th>
+                    <th class="text-left py-4 px-4 font-semibold text-gray-700">Attendance</th>
+                    <th class="text-left py-4 px-4 font-semibold text-gray-700">Progress</th>
+                    <th class="text-left py-4 px-4 font-semibold text-gray-700">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in students_data %}
+                <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <td class="py-4 px-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                                {{ data.student.user.first_name|first }}{{ data.student.user.last_name|first }}
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-800">{{ data.student.user.get_full_name }}</p>
+                                <p class="text-sm text-gray-500">{{ data.student.user.email }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-4 px-4 text-gray-700">{{ data.student.enrollment_number }}</td>
+                    <td class="py-4 px-4 text-gray-700">{{ data.student.course.name|default:"-" }}</td>
+                    <td class="py-4 px-4 text-gray-700">{{ data.student.batch.name|default:"-" }}</td>
+                    <td class="py-4 px-4 text-gray-700">{{ data.student.mentor.get_full_name|default:"-" }}</td>
+                    <td class="py-4 px-4">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-16 bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: {{ data.attendance }}%"></div>
+                            </div>
+                            <span class="text-sm font-semibold text-gray-700">{{ data.attendance }}%</span>
+                        </div>
+                    </td>
+                    <td class="py-4 px-4">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-16 bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: {{ data.progress }}%"></div>
+                            </div>
+                            <span class="text-sm font-semibold text-gray-700">{{ data.progress }}%</span>
+                        </div>
+                    </td>
+                    <td class="py-4 px-4">
+                        <a href="{% url 'staff_student_detail' data.student.id %}" class="text-blue-600 hover:text-blue-700 font-semibold">
+                            <i class="fas fa-eye mr-1"></i> View
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="py-12 text-center text-gray-500">
+                        <i class="fas fa-users text-4xl mb-3"></i>
+                        <p>No students found.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
