@@ -1,5 +1,4 @@
 {% extends 'dashboard/base_dashboard.html' %}
-
 {% block title %}Mentor Dashboard - Smart LMS{% endblock %}
 {% block page_title %}Mentor Dashboard{% endblock %}
 
@@ -21,13 +20,13 @@
         <i class="fas fa-calendar-alt text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
         <span x-show="sidebarOpen">Attendance</span>
     </a>
+    <a href="{% url 'mentor_projects' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-project-diagram text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Projects</span>
+    </a>
     <a href="{% url 'mentor_top_performers' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
         <i class="fas fa-trophy text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
         <span x-show="sidebarOpen">Top Performers</span>
-    </a>
-    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg" onclick="alert('Sessions feature coming soon!'); return false;">
-        <i class="fas fa-video text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
-        <span x-show="sidebarOpen">Sessions</span>
     </a>
 </div>
 {% endblock %}
@@ -37,23 +36,14 @@
     <a href="{% url 'mentor_dashboard' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
         <i class="fas fa-home text-xl"></i><span>Dashboard</span>
     </a>
-    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+    <a href="{% url 'mentor_students' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
         <i class="fas fa-users text-xl"></i><span>My Students</span>
     </a>
-    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+    <a href="{% url 'mentor_evaluations' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
         <i class="fas fa-clipboard-check text-xl"></i><span>Evaluations</span>
     </a>
-    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
-        <i class="fas fa-calendar-alt text-xl"></i><span>Attendance</span>
-    </a>
-    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
-        <i class="fas fa-video text-xl"></i><span>Sessions</span>
-    </a>
-    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
-        <i class="fas fa-chart-bar text-xl"></i><span>Reports</span>
-    </a>
-    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
-        <i class="fas fa-comments text-xl"></i><span>Messages</span>
+    <a href="{% url 'mentor_projects' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-project-diagram text-xl"></i><span>Projects</span>
     </a>
 </div>
 {% endblock %}
@@ -64,60 +54,61 @@
     <p class="text-gray-600 mt-1">Manage your students and track their progress.</p>
 </div>
 
+<!-- Stat Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
     <div class="stat-card bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-blue-100 text-sm font-medium mb-2">Total Students</p>
-                <h3 class="text-4xl font-bold">{{ total_students|default:0 }}</h3>
+                <h3 class="text-4xl font-bold">{{ total_students }}</h3>
             </div>
             <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
                 <i class="fas fa-users text-3xl"></i>
             </div>
         </div>
     </div>
-    
+
     <div class="stat-card bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 text-white">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-orange-100 text-sm font-medium mb-2">Pending Evaluations</p>
-                <h3 class="text-4xl font-bold">{{ pending_evaluations|default:0 }}</h3>
+                <h3 class="text-4xl font-bold">{{ pending_evaluations }}</h3>
             </div>
             <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
                 <i class="fas fa-clipboard-check text-3xl"></i>
             </div>
         </div>
     </div>
-    
+
     <div class="stat-card bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl p-6 text-white">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-yellow-100 text-sm font-medium mb-2">Top Performer Approvals</p>
-                <h3 class="text-4xl font-bold">{{ pending_approvals|default:0 }}</h3>
+                <p class="text-yellow-100 text-sm font-medium mb-2">Performer Approvals</p>
+                <h3 class="text-4xl font-bold">{{ pending_approvals }}</h3>
             </div>
             <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
                 <i class="fas fa-trophy text-3xl"></i>
             </div>
         </div>
     </div>
-    
+
     <div class="stat-card bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-green-100 text-sm font-medium mb-2">Upcoming Sessions</p>
-                <h3 class="text-4xl font-bold">{{ upcoming_sessions|default:0 }}</h3>
+                <p class="text-green-100 text-sm font-medium mb-2">Assignments Pending</p>
+                <h3 class="text-4xl font-bold">{{ pending_assignments }}</h3>
             </div>
             <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
-                <i class="fas fa-video text-3xl"></i>
+                <i class="fas fa-tasks text-3xl"></i>
             </div>
         </div>
     </div>
-    
+
     <div class="stat-card bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-purple-100 text-sm font-medium mb-2">Attendance Today</p>
-                <h3 class="text-4xl font-bold">{{ attendance_today|default:0 }}%</h3>
+                <h3 class="text-4xl font-bold">{{ attendance_today }}%</h3>
             </div>
             <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
                 <i class="fas fa-calendar-check text-3xl"></i>
@@ -126,35 +117,76 @@
     </div>
 </div>
 
+<!-- Pending Evaluations + Student Performance -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <div class="bg-white rounded-2xl shadow-sm p-6">
-        <h3 class="text-xl font-bold text-gray-800 mb-6">Pending Evaluations</h3>
-        <div class="space-y-4">
-            <div class="p-4 border border-gray-200 rounded-xl hover:shadow-md transition">
-                <div class="flex items-center justify-between mb-2">
-                    <h4 class="font-semibold text-gray-800">Python Assignment - John Doe</h4>
-                    <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">Pending</span>
-                </div>
-                <p class="text-sm text-gray-600 mb-3">Submitted 2 hours ago</p>
-                <button class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-blue-700">Evaluate</button>
-            </div>
+        <div class="flex items-center justify-between mb-5">
+            <h3 class="text-xl font-bold text-gray-800">Pending Evaluations</h3>
+            <a href="{% url 'mentor_evaluations' %}" class="text-primary hover:text-blue-700 text-sm font-semibold">View All →</a>
         </div>
+        {% if recent_pending %}
+        <div class="space-y-3">
+            {% for sub in recent_pending %}
+            <div class="p-4 border border-gray-200 rounded-xl hover:shadow-md transition">
+                <div class="flex items-center justify-between mb-1">
+                    <h4 class="font-semibold text-gray-800 text-sm">{{ sub.assignment.title }}</h4>
+                    <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">Pending</span>
+                </div>
+                <p class="text-xs text-gray-500 mb-2">
+                    {{ sub.student.user.get_full_name }} &bull; {{ sub.submitted_at|timesince }} ago
+                </p>
+                <a href="{% url 'evaluate_assignment' sub.id %}"
+                   class="inline-block px-4 py-1.5 bg-primary text-white rounded-lg text-xs hover:bg-blue-700 transition font-semibold">
+                    Evaluate
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-8 text-gray-400">
+            <i class="fas fa-check-circle text-3xl mb-2 text-green-400"></i>
+            <p>No pending evaluations.</p>
+        </div>
+        {% endif %}
     </div>
-    
+
     <div class="bg-white rounded-2xl shadow-sm p-6">
-        <h3 class="text-xl font-bold text-gray-800 mb-6">Student Performance</h3>
-        <div class="space-y-4">
-            <div class="flex items-center justify-between p-4 border border-gray-200 rounded-xl">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold">JD</div>
+        <div class="flex items-center justify-between mb-5">
+            <h3 class="text-xl font-bold text-gray-800">Student Progress</h3>
+            <a href="{% url 'mentor_students' %}" class="text-primary hover:text-blue-700 text-sm font-semibold">View All →</a>
+        </div>
+        {% if students_data %}
+        <div class="space-y-3">
+            {% for item in students_data %}
+            <div class="flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:shadow-md transition">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                        {{ item.student.user.first_name|first }}{{ item.student.user.last_name|first }}
+                    </div>
                     <div>
-                        <p class="font-semibold text-gray-800">John Doe</p>
-                        <p class="text-sm text-gray-500">Phase 1 - 85% Complete</p>
+                        <p class="font-semibold text-gray-800 text-sm">{{ item.student.user.get_full_name }}</p>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <div class="w-20 bg-gray-200 rounded-full h-1.5">
+                                <div class="h-1.5 rounded-full
+                                    {% if item.progress >= 75 %}bg-green-500
+                                    {% elif item.progress >= 40 %}bg-yellow-500
+                                    {% else %}bg-red-400{% endif %}"
+                                    style="width: {{ item.progress }}%"></div>
+                            </div>
+                            <span class="text-xs text-gray-500">{{ item.progress }}%</span>
+                        </div>
                     </div>
                 </div>
-                <button class="text-primary hover:text-blue-700">View →</button>
+                <a href="{% url 'mentor_students' %}" class="text-primary hover:text-blue-700 text-sm font-semibold">View →</a>
             </div>
+            {% endfor %}
         </div>
+        {% else %}
+        <div class="text-center py-8 text-gray-400">
+            <i class="fas fa-users text-3xl mb-2"></i>
+            <p>No students assigned yet.</p>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

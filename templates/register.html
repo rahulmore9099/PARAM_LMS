@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Registration - Smart LMS{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center gradient-bg py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-2xl w-full">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <a href="/" class="inline-flex items-center space-x-3 mb-4">
+                <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg">
+                    <i class="fas fa-graduation-cap text-primary text-3xl"></i>
+                </div>
+            </a>
+            <h2 class="text-4xl font-bold text-white mb-2">Create Account</h2>
+            <p class="text-blue-100">Register to start your learning journey</p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white rounded-2xl shadow-2xl p-8">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST" class="space-y-5">
+                {% csrf_token %}
+
+                <!-- Full Name -->
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-1 text-sm">
+                        <i class="fas fa-user mr-2 text-primary"></i>Full Name
+                    </label>
+                    <input type="text" name="full_name" value="{{ post.full_name|default:'' }}" required
+                           class="w-full px-4 py-3 border {% if errors.full_name %}border-red-400 bg-red-50{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                           placeholder="Enter your full name">
+                    {% if errors.full_name %}<p class="text-red-500 text-xs mt-1">{{ errors.full_name.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-1 text-sm">
+                        <i class="fas fa-envelope mr-2 text-primary"></i>Email ID
+                    </label>
+                    <input type="email" name="email" value="{{ post.email|default:'' }}" required
+                           class="w-full px-4 py-3 border {% if errors.email %}border-red-400 bg-red-50{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                           placeholder="Enter your email address">
+                    {% if errors.email %}<p class="text-red-500 text-xs mt-1">{{ errors.email.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Technology + Mentor row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-1 text-sm">
+                            <i class="fas fa-code mr-2 text-primary"></i>Technology
+                        </label>
+                        <select name="technology" required
+                                class="w-full px-4 py-3 border {% if errors.technology %}border-red-400 bg-red-50{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition">
+                            <option value="">Select Technology</option>
+                            {% for course in courses %}
+                            <option value="{{ course.id }}" {% if post.technology == course.id|stringformat:"s" %}selected{% endif %}>
+                                {{ course.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if errors.technology %}<p class="text-red-500 text-xs mt-1">{{ errors.technology.0 }}</p>{% endif %}
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-1 text-sm">
+                            <i class="fas fa-chalkboard-teacher mr-2 text-primary"></i>Assigned Mentor
+                        </label>
+                        <select name="mentor_id"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition">
+                            <option value="">Select Mentor (optional)</option>
+                            {% for mentor in mentors %}
+                            <option value="{{ mentor.id }}" {% if post.mentor_id == mentor.id|stringformat:"s" %}selected{% endif %}>
+                                {{ mentor.get_full_name|default:mentor.username }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Parent Name + Residence Type row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-1 text-sm">
+                            <i class="fas fa-user-friends mr-2 text-primary"></i>Parent's Name
+                        </label>
+                        <input type="text" name="parent_name" value="{{ post.parent_name|default:'' }}" required
+                               class="w-full px-4 py-3 border {% if errors.parent_name %}border-red-400 bg-red-50{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                               placeholder="Parent's full name">
+                        {% if errors.parent_name %}<p class="text-red-500 text-xs mt-1">{{ errors.parent_name.0 }}</p>{% endif %}
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-1 text-sm">
+                            <i class="fas fa-home mr-2 text-primary"></i>Residence Type
+                        </label>
+                        <select name="residence_type" required
+                                class="w-full px-4 py-3 border {% if errors.residence_type %}border-red-400 bg-red-50{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition">
+                            <option value="">Select Residence</option>
+                            <option value="hostel" {% if post.residence_type == 'hostel' %}selected{% endif %}>Hostel</option>
+                            <option value="home" {% if post.residence_type == 'home' %}selected{% endif %}>Home</option>
+                            <option value="guardian" {% if post.residence_type == 'guardian' %}selected{% endif %}>Guardian</option>
+                        </select>
+                        {% if errors.residence_type %}<p class="text-red-500 text-xs mt-1">{{ errors.residence_type.0 }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <!-- Phone numbers row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-1 text-sm">
+                            <i class="fas fa-phone mr-2 text-primary"></i>Mobile Number
+                        </label>
+                        <input type="tel" name="phone" value="{{ post.phone|default:'' }}" required maxlength="10"
+                               class="w-full px-4 py-3 border {% if errors.phone %}border-red-400 bg-red-50{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                               placeholder="10-digit mobile number">
+                        {% if errors.phone %}<p class="text-red-500 text-xs mt-1">{{ errors.phone.0 }}</p>{% endif %}
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-1 text-sm">
+                            <i class="fas fa-phone-alt mr-2 text-primary"></i>Parent's Mobile Number
+                        </label>
+                        <input type="tel" name="parent_phone" value="{{ post.parent_phone|default:'' }}" required maxlength="10"
+                               class="w-full px-4 py-3 border {% if errors.parent_phone %}border-red-400 bg-red-50{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                               placeholder="10-digit parent mobile number">
+                        {% if errors.parent_phone %}<p class="text-red-500 text-xs mt-1">{{ errors.parent_phone.0 }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <!-- Password row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-1 text-sm">
+                            <i class="fas fa-lock mr-2 text-primary"></i>Password
+                        </label>
+                        <input type="password" name="password" required minlength="8"
+                               class="w-full px-4 py-3 border {% if errors.password %}border-red-400 bg-red-50{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                               placeholder="Minimum 8 characters">
+                        {% if errors.password %}<p class="text-red-500 text-xs mt-1">{{ errors.password.0 }}</p>{% endif %}
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-1 text-sm">
+                            <i class="fas fa-lock mr-2 text-primary"></i>Confirm Password
+                        </label>
+                        <input type="password" name="confirm_password" required
+                               class="w-full px-4 py-3 border {% if errors.confirm_password %}border-red-400 bg-red-50{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                               placeholder="Re-enter your password">
+                        {% if errors.confirm_password %}<p class="text-red-500 text-xs mt-1">{{ errors.confirm_password.0 }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <button type="submit"
+                        class="w-full bg-primary text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition text-lg mt-2">
+                    <i class="fas fa-user-plus mr-2"></i>Create Account
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <p class="text-gray-600">Already have an account?
+                    <a href="{% url 'login' %}" class="text-primary hover:text-blue-700 font-semibold">Sign In</a>
+                </p>
+            </div>
+        </div>
+
+        <div class="text-center mt-6">
+            <a href="/" class="text-white hover:text-blue-200 transition">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

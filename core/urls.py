@@ -6,6 +6,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('about/', views.about, name='about'),
     path('contact/', views.contact, name='contact'),
+    path('register/', views.register_view, name='register'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('dashboard/', views.dashboard, name='dashboard'),
@@ -75,6 +76,7 @@ urlpatterns = [
     path('dashboard/student/attendance/', views.student_attendance, name='student_attendance'),
     path('dashboard/student/attendance/mark/', views.mark_my_attendance, name='mark_my_attendance'),
     path('dashboard/student/progress/', views.student_progress, name='student_progress'),
+    path('dashboard/student/project/', views.student_project, name='student_project'),
     
     # Mentor Panel
     path('dashboard/mentor/students/', views.mentor_students, name='mentor_students'),
@@ -83,6 +85,9 @@ urlpatterns = [
     path('dashboard/mentor/attendance/', views.mentor_attendance, name='mentor_attendance'),
     path('dashboard/mentor/top-performers/', views.mentor_top_performers, name='mentor_top_performers'),
     path('dashboard/mentor/top-performers/<int:performer_id>/', views.mentor_approve_performer, name='mentor_approve_performer'),
+    path('dashboard/mentor/projects/', views.mentor_projects, name='mentor_projects'),
+    path('dashboard/mentor/projects/<int:project_id>/', views.mentor_project_detail, name='mentor_project_detail'),
+    path('dashboard/mentor/students/<int:student_id>/phase/', views.mentor_update_student_phase, name='mentor_update_student_phase'),
     
     # Top Performers (All users)
     path('dashboard/top-performers/', views.view_top_performers, name='view_top_performers'),

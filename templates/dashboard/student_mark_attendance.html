@@ -1,5 +1,4 @@
 {% extends 'dashboard/base_dashboard.html' %}
-
 {% block title %}Mark Attendance - Smart LMS{% endblock %}
 {% block page_title %}Mark Attendance{% endblock %}
 
@@ -9,25 +8,21 @@
         <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
         <span x-show="sidebarOpen">Dashboard</span>
     </a>
-    <a href="{% url 'student_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
-        <i class="fas fa-book-open text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
-        <span x-show="sidebarOpen">My Courses</span>
-    </a>
-    <a href="{% url 'student_assignments' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
-        <i class="fas fa-tasks text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
-        <span x-show="sidebarOpen">Assignments</span>
-    </a>
-    <a href="{% url 'student_exams' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
-        <i class="fas fa-clipboard-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
-        <span x-show="sidebarOpen">Exams</span>
-    </a>
     <a href="{% url 'student_attendance' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
-        <i class="fas fa-calendar-alt text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <i class="fas fa-calendar-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
         <span x-show="sidebarOpen">Attendance</span>
     </a>
     <a href="{% url 'student_progress' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
         <i class="fas fa-chart-line text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
         <span x-show="sidebarOpen">Progress</span>
+    </a>
+    <a href="{% url 'student_assignments' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-tasks text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Assignments</span>
+    </a>
+    <a href="{% url 'student_project' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-project-diagram text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">My Project</span>
     </a>
 </div>
 {% endblock %}
@@ -37,208 +32,139 @@
     <a href="{% url 'student_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
         <i class="fas fa-home text-xl"></i><span>Dashboard</span>
     </a>
-    <a href="{% url 'student_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
-        <i class="fas fa-book-open text-xl"></i><span>My Courses</span>
-    </a>
-    <a href="{% url 'student_assignments' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
-        <i class="fas fa-tasks text-xl"></i><span>Assignments</span>
-    </a>
-    <a href="{% url 'student_exams' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
-        <i class="fas fa-clipboard-check text-xl"></i><span>Exams</span>
-    </a>
     <a href="{% url 'student_attendance' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
-        <i class="fas fa-calendar-alt text-xl"></i><span>Attendance</span>
-    </a>
-    <a href="{% url 'student_progress' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
-        <i class="fas fa-chart-line text-xl"></i><span>Progress</span>
+        <i class="fas fa-calendar-check text-xl"></i><span>Attendance</span>
     </a>
 </div>
 {% endblock %}
 
 {% block content %}
-<div x-data="{
-    latitude: null,
-    longitude: null,
-    address: 'Fetching location...',
-    loading: false,
-    hasEntry: {{ today_attendance|yesno:'true,false' }},
-    
-    getLocation(action) {
-        this.loading = true;
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    this.latitude = position.coords.latitude;
-                    this.longitude = position.coords.longitude;
-                    this.getAddress(action);
-                },
-                (error) => {
-                    alert('Error getting location: ' + error.message);
-                    this.loading = false;
-                }
-            );
-        } else {
-            alert('Geolocation is not supported by this browser.');
-            this.loading = false;
-        }
-    },
-    
-    getAddress(action) {
-        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${this.latitude}&lon=${this.longitude}`)
-            .then(response => response.json())
-            .then(data => {
-                this.address = data.display_name;
-                this.submitAttendance(action);
-            })
-            .catch(error => {
-                this.address = `Lat: ${this.latitude}, Lon: ${this.longitude}`;
-                this.submitAttendance(action);
-            });
-    },
-    
-    submitAttendance(action) {
-        const now = new Date();
-        const time = now.toTimeString().split(' ')[0].substring(0, 5);
-        
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '';
-        
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        form.innerHTML = `
-            <input type='hidden' name='csrfmiddlewaretoken' value='${csrfToken}'>
-            <input type='hidden' name='action' value='${action}'>
-            <input type='hidden' name='${action}_time' value='${time}'>
-            <input type='hidden' name='${action}_latitude' value='${this.latitude}'>
-            <input type='hidden' name='${action}_longitude' value='${this.longitude}'>
-            <input type='hidden' name='${action}_location' value='${this.address}'>
-        `;
-        
-        document.body.appendChild(form);
-        form.submit();
-    }
-}">
-    {% csrf_token %}
-    
-    <div class="mb-6">
-        <a href="{% url 'student_attendance' %}" class="text-primary hover:text-blue-700 font-semibold mb-2 inline-block">
-            <i class="fas fa-arrow-left mr-2"></i>Back to Attendance
-        </a>
-        <h2 class="text-3xl font-bold text-gray-800">Mark Attendance</h2>
-        <p class="text-gray-600 mt-1">Mark your entry and exit with GPS location</p>
-    </div>
+<div class="mb-6">
+    <a href="{% url 'student_attendance' %}" class="text-blue-600 hover:text-blue-700 text-sm font-semibold">
+        <i class="fas fa-arrow-left mr-2"></i>Back to Attendance
+    </a>
+    <h2 class="text-3xl font-bold text-gray-800 mt-2">Mark Today's Attendance</h2>
+</div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Start Attendance -->
-        <div class="bg-white rounded-2xl shadow-sm p-8">
-            <div class="text-center mb-6">
-                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-sign-in-alt text-green-600 text-3xl"></i>
-                </div>
-                <h3 class="text-2xl font-bold text-gray-800 mb-2">Start Your Day</h3>
-                <p class="text-gray-600">Mark your entry time with location</p>
-            </div>
-            
-            {% if today_attendance %}
-            <div class="p-6 bg-green-50 rounded-xl border border-green-200 mb-6">
-                <div class="flex items-center justify-center mb-3">
-                    <i class="fas fa-check-circle text-green-600 text-4xl"></i>
-                </div>
-                <p class="text-center font-semibold text-gray-800 mb-2">Entry Marked</p>
-                <p class="text-center text-sm text-gray-600">Time: {{ today_attendance.in_time }}</p>
-                {% if today_attendance.in_location_address %}
-                <p class="text-center text-sm text-gray-600 mt-2">
-                    <i class="fas fa-map-marker-alt text-green-600 mr-1"></i>{{ today_attendance.in_location_address|truncatewords:10 }}
-                </p>
-                {% endif %}
-            </div>
-            {% else %}
-            <button @click="getLocation('in')" :disabled="loading" class="w-full px-6 py-4 bg-green-500 text-white rounded-xl font-semibold hover:bg-green-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
-                <i class="fas fa-map-marker-alt mr-2"></i>
-                <span x-text="loading ? 'Getting Location...' : 'Mark Entry'"></span>
-            </button>
-            {% endif %}
-            
-            <div class="mt-6 p-4 bg-blue-50 rounded-xl">
-                <p class="text-sm text-gray-700">
-                    <i class="fas fa-info-circle text-blue-600 mr-2"></i>
-                    Your GPS location will be captured to verify your presence at the institute.
-                </p>
-            </div>
-        </div>
-        
-        <!-- Exit Attendance -->
-        <div class="bg-white rounded-2xl shadow-sm p-8">
-            <div class="text-center mb-6">
-                <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-sign-out-alt text-red-600 text-3xl"></i>
-                </div>
-                <h3 class="text-2xl font-bold text-gray-800 mb-2">End Your Day</h3>
-                <p class="text-gray-600">Mark your exit time with location</p>
-            </div>
-            
-            {% if today_attendance and today_attendance.out_time %}
-            <div class="p-6 bg-red-50 rounded-xl border border-red-200 mb-6">
-                <div class="flex items-center justify-center mb-3">
-                    <i class="fas fa-check-circle text-red-600 text-4xl"></i>
-                </div>
-                <p class="text-center font-semibold text-gray-800 mb-2">Exit Marked</p>
-                <p class="text-center text-sm text-gray-600">Time: {{ today_attendance.out_time }}</p>
-                {% if today_attendance.out_location_address %}
-                <p class="text-center text-sm text-gray-600 mt-2">
-                    <i class="fas fa-map-marker-alt text-red-600 mr-1"></i>{{ today_attendance.out_location_address|truncatewords:10 }}
-                </p>
-                {% endif %}
-            </div>
-            {% elif today_attendance %}
-            <button @click="getLocation('out')" :disabled="loading" class="w-full px-6 py-4 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
-                <i class="fas fa-map-marker-alt mr-2"></i>
-                <span x-text="loading ? 'Getting Location...' : 'Mark Exit'"></span>
-            </button>
-            {% else %}
-            <div class="p-6 bg-gray-50 rounded-xl border border-gray-200 mb-6">
-                <div class="flex items-center justify-center mb-3">
-                    <i class="fas fa-lock text-gray-400 text-4xl"></i>
-                </div>
-                <p class="text-center font-semibold text-gray-800 mb-2">Entry Required</p>
-                <p class="text-center text-sm text-gray-600">Please mark your entry first</p>
-            </div>
-            {% endif %}
-            
-            <div class="mt-6 p-4 bg-blue-50 rounded-xl">
-                <p class="text-sm text-gray-700">
-                    <i class="fas fa-info-circle text-blue-600 mr-2"></i>
-                    Total hours will be calculated based on entry and exit times.
-                </p>
-            </div>
-        </div>
+{% if today_attendance %}
+<div class="bg-white rounded-2xl shadow-sm p-8 text-center">
+    <div class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center
+        {% if today_attendance.status == 'present' %}bg-green-100{% else %}bg-red-100{% endif %}">
+        <i class="fas {% if today_attendance.status == 'present' %}fa-check-circle text-green-600{% else %}fa-times-circle text-red-600{% endif %} text-4xl"></i>
     </div>
-    
-    <!-- Today's Summary -->
-    {% if today_attendance %}
-    <div class="bg-white rounded-2xl shadow-sm p-6 mt-6">
-        <h3 class="text-xl font-bold text-gray-800 mb-4">Today's Summary</h3>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="p-4 bg-green-50 rounded-xl">
-                <p class="text-sm text-gray-600 mb-1">Entry Time</p>
-                <p class="text-2xl font-bold text-green-600">{{ today_attendance.in_time|default:"--" }}</p>
-            </div>
-            <div class="p-4 bg-red-50 rounded-xl">
-                <p class="text-sm text-gray-600 mb-1">Exit Time</p>
-                <p class="text-2xl font-bold text-red-600">{{ today_attendance.out_time|default:"--" }}</p>
-            </div>
-            <div class="p-4 bg-blue-50 rounded-xl">
-                <p class="text-sm text-gray-600 mb-1">Total Hours</p>
-                <p class="text-2xl font-bold text-blue-600">
-                    {% if today_attendance.in_time and today_attendance.out_time %}
-                        {% widthratio today_attendance.out_time.hour 1 1 %}:{% widthratio today_attendance.out_time.minute 1 1 %} - {% widthratio today_attendance.in_time.hour 1 1 %}:{% widthratio today_attendance.in_time.minute 1 1 %}
-                    {% else %}
-                        --
-                    {% endif %}
-                </p>
-            </div>
-        </div>
+    <h3 class="text-2xl font-bold text-gray-800 mb-2">Attendance Already Marked</h3>
+    <p class="text-gray-600 mb-4">You have already marked attendance for today.</p>
+    <div class="inline-flex items-center px-6 py-3 rounded-full text-lg font-bold
+        {% if today_attendance.status == 'present' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+        {% if today_attendance.status == 'present' %}
+        <i class="fas fa-check-circle mr-2"></i> Present
+        {% else %}
+        <i class="fas fa-times-circle mr-2"></i> Absent
+        {% endif %}
     </div>
+    {% if today_attendance.in_time %}
+    <p class="text-gray-500 mt-3 text-sm">Marked at {{ today_attendance.in_time|time:"g:i A" }}</p>
     {% endif %}
 </div>
+
+{% else %}
+<div class="max-w-lg mx-auto" x-data="attendanceApp()">
+    <div class="bg-white rounded-2xl shadow-sm p-8">
+        <div class="text-center mb-6">
+            <div class="w-20 h-20 bg-blue-100 rounded-full mx-auto flex items-center justify-center mb-4">
+                <i class="fas fa-map-marker-alt text-blue-600 text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800">GPS Location Verification</h3>
+            <p class="text-gray-500 mt-2 text-sm">Your location will be verified against the institute's coordinates.</p>
+        </div>
+
+        <!-- Location status -->
+        <div class="mb-6 p-4 rounded-xl text-center"
+             :class="locationStatus === 'loading' ? 'bg-blue-50 text-blue-700' :
+                     locationStatus === 'ready' ? 'bg-green-50 text-green-700' :
+                     'bg-red-50 text-red-700'">
+            <template x-if="locationStatus === 'loading'">
+                <div>
+                    <i class="fas fa-spinner fa-spin mr-2"></i>
+                    <span>Fetching your location...</span>
+                </div>
+            </template>
+            <template x-if="locationStatus === 'ready'">
+                <div>
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span>Location captured successfully</span>
+                    <p class="text-xs mt-1 opacity-75" x-text="'Lat: ' + lat.toFixed(6) + ', Lon: ' + lon.toFixed(6)"></p>
+                </div>
+            </template>
+            <template x-if="locationStatus === 'error'">
+                <div>
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <span x-text="locationError"></span>
+                </div>
+            </template>
+        </div>
+
+        <form method="POST" @submit.prevent="submitAttendance">
+            {% csrf_token %}
+            <input type="hidden" name="lat" x-model="lat">
+            <input type="hidden" name="lon" x-model="lon">
+            <input type="hidden" name="location_address" x-model="locationAddress">
+
+            <button type="submit"
+                    :disabled="locationStatus !== 'ready'"
+                    :class="locationStatus === 'ready' ? 'bg-primary hover:bg-blue-700 cursor-pointer' : 'bg-gray-300 cursor-not-allowed'"
+                    class="w-full text-white px-8 py-4 rounded-lg font-semibold transition text-lg">
+                <i class="fas fa-calendar-check mr-2"></i>
+                <span x-text="locationStatus === 'ready' ? 'Mark Attendance' : 'Waiting for Location...'"></span>
+            </button>
+        </form>
+
+        <p class="text-center text-gray-400 text-xs mt-4">
+            <i class="fas fa-shield-alt mr-1"></i>
+            Location is only used for attendance verification and is stored securely.
+        </p>
+    </div>
+</div>
+
+<script>
+function attendanceApp() {
+    return {
+        lat: 0,
+        lon: 0,
+        locationAddress: '',
+        locationStatus: 'loading',
+        locationError: '',
+
+        init() {
+            if (!navigator.geolocation) {
+                this.locationStatus = 'error';
+                this.locationError = 'Location access is required to mark attendance. Your browser does not support geolocation.';
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    this.lat = pos.coords.latitude;
+                    this.lon = pos.coords.longitude;
+                    this.locationStatus = 'ready';
+                },
+                (err) => {
+                    this.locationStatus = 'error';
+                    if (err.code === err.PERMISSION_DENIED) {
+                        this.locationError = 'Location access is required to mark attendance. Please allow location access and refresh.';
+                    } else {
+                        this.locationError = 'Unable to retrieve your location. Please try again.';
+                    }
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        },
+
+        submitAttendance() {
+            if (this.locationStatus !== 'ready') return;
+            this.$el.closest('form').submit();
+        }
+    }
+}
+</script>
+{% endif %}
 {% endblock %}

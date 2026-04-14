@@ -127,3 +127,8 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# GPS Attendance Validation
+INSTITUTE_LATITUDE = float(os.getenv('INSTITUTE_LATITUDE', '0.0'))
+INSTITUTE_LONGITUDE = float(os.getenv('INSTITUTE_LONGITUDE', '0.0'))
+INSTITUTE_RADIUS_METERS = int(os.getenv('INSTITUTE_RADIUS_METERS', '200'))

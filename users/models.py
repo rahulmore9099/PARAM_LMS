@@ -40,6 +40,12 @@ class Student(models.Model):
     current_phase = models.ForeignKey('courses.Phase', on_delete=models.SET_NULL, null=True, blank=True)
     admission_date = models.DateField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
+    residence_type = models.CharField(
+        max_length=20,
+        choices=[('hostel', 'Hostel'), ('home', 'Home'), ('guardian', 'Guardian')],
+        blank=True
+    )
+    parent_name = models.CharField(max_length=200, blank=True)
     
     class Meta:
         db_table = 'students'

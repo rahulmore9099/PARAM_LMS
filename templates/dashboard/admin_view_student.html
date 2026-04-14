@@ -1,0 +1,202 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}View Student - Smart LMS{% endblock %}
+{% block page_title %}Student Profile{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'admin_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    <a href="{% url 'admin_students' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-user-graduate text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Students</span>
+    </a>
+    <a href="{% url 'admin_mentors' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chalkboard-teacher text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Mentors</span>
+    </a>
+    <a href="{% url 'admin_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-book-open text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Courses</span>
+    </a>
+    <a href="{% url 'admin_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+    <a href="{% url 'admin_announcements' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-bullhorn text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Announcements</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'admin_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'admin_students' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-user-graduate text-xl"></i><span>Students</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+    <div>
+        <a href="{% url 'admin_students' %}" class="text-blue-600 hover:text-blue-700 text-sm font-semibold">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Students
+        </a>
+        <h2 class="text-3xl font-bold text-gray-800 mt-2">{{ student.user.get_full_name }}</h2>
+        <p class="text-gray-500 mt-1">{{ student.enrollment_number }}</p>
+    </div>
+    <div class="flex space-x-3">
+        <a href="{% url 'admin_edit_student' student.id %}"
+           class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+            <i class="fas fa-edit mr-2"></i>Edit
+        </a>
+        <a href="{% url 'admin_delete_student' student.id %}"
+           class="bg-red-600 text-white px-5 py-2 rounded-lg hover:bg-red-700 transition-colors font-semibold">
+            <i class="fas fa-trash mr-2"></i>Delete
+        </a>
+    </div>
+</div>
+
+<!-- Profile Header Card -->
+<div class="bg-gradient-to-r from-primary to-blue-700 rounded-2xl p-8 text-white mb-6">
+    <div class="flex items-center space-x-6">
+        <div class="w-24 h-24 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-4xl font-bold">
+            {{ student.user.first_name.0|default:student.user.username.0|upper }}{{ student.user.last_name.0|upper }}
+        </div>
+        <div>
+            <h3 class="text-3xl font-bold">{{ student.user.get_full_name }}</h3>
+            <p class="text-blue-100 mt-1">{{ student.enrollment_number }}</p>
+            <div class="flex items-center space-x-4 mt-3">
+                <span class="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm">
+                    <i class="fas fa-book mr-1"></i>{{ student.course.name|default:"No Course" }}
+                </span>
+                <span class="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm">
+                    <i class="fas fa-users mr-1"></i>{{ student.batch.name|default:"No Batch" }}
+                </span>
+                {% if student.is_active %}
+                <span class="px-3 py-1 bg-green-400 bg-opacity-80 rounded-full text-sm font-semibold">
+                    <i class="fas fa-check-circle mr-1"></i>Active
+                </span>
+                {% else %}
+                <span class="px-3 py-1 bg-red-400 bg-opacity-80 rounded-full text-sm font-semibold">
+                    <i class="fas fa-times-circle mr-1"></i>Inactive
+                </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Left: Personal Info -->
+    <div class="lg:col-span-1 space-y-6">
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-user text-blue-600 mr-2"></i>Personal Information
+            </h3>
+            <div class="space-y-3">
+                <div class="flex justify-between py-2 border-b border-gray-100">
+                    <span class="text-gray-500 text-sm">Full Name</span>
+                    <span class="font-semibold text-gray-800 text-sm">{{ student.user.get_full_name }}</span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-100">
+                    <span class="text-gray-500 text-sm">Username</span>
+                    <span class="font-semibold text-gray-800 text-sm">{{ student.user.username }}</span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-100">
+                    <span class="text-gray-500 text-sm">Email</span>
+                    <span class="font-semibold text-gray-800 text-sm">{{ student.user.email|default:"-" }}</span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-100">
+                    <span class="text-gray-500 text-sm">Phone</span>
+                    <span class="font-semibold text-gray-800 text-sm">{{ student.user.phone|default:"-" }}</span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-100">
+                    <span class="text-gray-500 text-sm">Date of Birth</span>
+                    <span class="font-semibold text-gray-800 text-sm">
+                        {% if student.user.date_of_birth %}{{ student.user.date_of_birth|date:"M d, Y" }}{% else %}-{% endif %}
+                    </span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-100">
+                    <span class="text-gray-500 text-sm">College</span>
+                    <span class="font-semibold text-gray-800 text-sm">{{ student.college_name|default:"-" }}</span>
+                </div>
+                <div class="flex justify-between py-2">
+                    <span class="text-gray-500 text-sm">Admission Date</span>
+                    <span class="font-semibold text-gray-800 text-sm">{{ student.admission_date|date:"M d, Y" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-graduation-cap text-purple-600 mr-2"></i>Academic Info
+            </h3>
+            <div class="space-y-3">
+                <div class="flex justify-between py-2 border-b border-gray-100">
+                    <span class="text-gray-500 text-sm">Course</span>
+                    <span class="font-semibold text-gray-800 text-sm">{{ student.course.name|default:"-" }}</span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-100">
+                    <span class="text-gray-500 text-sm">Batch</span>
+                    <span class="font-semibold text-gray-800 text-sm">{{ student.batch.name|default:"-" }}</span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-100">
+                    <span class="text-gray-500 text-sm">Mentor</span>
+                    <span class="font-semibold text-gray-800 text-sm">{{ student.mentor.get_full_name|default:"-" }}</span>
+                </div>
+                <div class="flex justify-between py-2">
+                    <span class="text-gray-500 text-sm">Current Phase</span>
+                    <span class="font-semibold text-gray-800 text-sm">{{ student.current_phase.name|default:"-" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Address -->
+    <div class="lg:col-span-2 space-y-6">
+        {% if student.user.address %}
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>Address
+            </h3>
+            <p class="text-gray-700">{{ student.user.address }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Quick Actions</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <a href="{% url 'admin_edit_student' student.id %}"
+                   class="flex items-center justify-center space-x-2 p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors">
+                    <i class="fas fa-edit text-blue-600 text-xl"></i>
+                    <span class="font-semibold text-gray-800">Edit Profile</span>
+                </a>
+                <a href="{% url 'admin_attendance' %}?search={{ student.enrollment_number }}"
+                   class="flex items-center justify-center space-x-2 p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors">
+                    <i class="fas fa-calendar-check text-green-600 text-xl"></i>
+                    <span class="font-semibold text-gray-800">View Attendance</span>
+                </a>
+                <a href="{% url 'admin_delete_student' student.id %}"
+                   class="flex items-center justify-center space-x-2 p-4 bg-red-50 rounded-xl hover:bg-red-100 transition-colors">
+                    <i class="fas fa-trash text-red-600 text-xl"></i>
+                    <span class="font-semibold text-gray-800">Delete Student</span>
+                </a>
+                <a href="{% url 'admin_students' %}"
+                   class="flex items-center justify-center space-x-2 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-list text-gray-600 text-xl"></i>
+                    <span class="font-semibold text-gray-800">All Students</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

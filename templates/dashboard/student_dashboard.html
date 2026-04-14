@@ -1,5 +1,4 @@
 {% extends 'dashboard/base_dashboard.html' %}
-
 {% block title %}Student Dashboard - Smart LMS{% endblock %}
 {% block page_title %}Student Dashboard{% endblock %}
 
@@ -9,35 +8,33 @@
         <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
         <span x-show="sidebarOpen">Dashboard</span>
     </a>
-    
     <a href="{% url 'student_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
         <i class="fas fa-book-open text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
         <span x-show="sidebarOpen">Curriculum</span>
     </a>
-    
-    <a href="{% url 'student_explanation' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
-        <i class="fas fa-play-circle text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
-        <span x-show="sidebarOpen">Explanation</span>
+    <a href="{% url 'student_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
     </a>
-    
-    <a href="{% url 'student_ai_help' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
-        <i class="fas fa-robot text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
-        <span x-show="sidebarOpen">AI Help</span>
+    <a href="{% url 'student_progress' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Progress</span>
     </a>
-    
     <a href="{% url 'student_assignments' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
         <i class="fas fa-tasks text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
         <span x-show="sidebarOpen">Assignments</span>
     </a>
-    
-    <a href="{% url 'student_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
-        <i class="fas fa-calendar-alt text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
-        <span x-show="sidebarOpen">Attendance</span>
+    <a href="{% url 'student_exams' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-list text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Exams</span>
     </a>
-    
-    <a href="{% url 'student_progress' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
-        <i class="fas fa-chart-line text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
-        <span x-show="sidebarOpen">Progress</span>
+    <a href="{% url 'student_project' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-project-diagram text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">My Project</span>
+    </a>
+    <a href="{% url 'student_ai_help' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-robot text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">AI Help</span>
     </a>
 </div>
 {% endblock %}
@@ -47,87 +44,68 @@
     <a href="{% url 'student_dashboard' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
         <i class="fas fa-home text-xl"></i><span>Dashboard</span>
     </a>
-    <a href="{% url 'student_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
-        <i class="fas fa-book-open text-xl"></i><span>My Courses</span>
+    <a href="{% url 'student_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl"></i><span>Attendance</span>
     </a>
     <a href="{% url 'student_assignments' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
         <i class="fas fa-tasks text-xl"></i><span>Assignments</span>
     </a>
-    <a href="{% url 'student_exams' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
-        <i class="fas fa-clipboard-check text-xl"></i><span>Exams</span>
-    </a>
-    <a href="{% url 'student_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
-        <i class="fas fa-calendar-alt text-xl"></i><span>Attendance</span>
-    </a>
-    <a href="{% url 'student_progress' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
-        <i class="fas fa-chart-line text-xl"></i><span>Progress</span>
-    </a>
-    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg" onclick="alert('Video explanations coming soon!'); return false;">
-        <i class="fas fa-play-circle text-xl"></i><span>Explanation</span>
-    </a>
-    <a href="#" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg" onclick="alert('AI Help feature coming soon!'); return false;">
-        <i class="fas fa-robot text-xl"></i><span>AI Help</span>
+    <a href="{% url 'student_project' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-project-diagram text-xl"></i><span>My Project</span>
     </a>
 </div>
 {% endblock %}
 
 {% block content %}
-<!-- Welcome Message -->
+<!-- Welcome -->
 <div class="mb-6">
-    <h2 class="text-3xl font-bold text-gray-800">Welcome back, {{ user.get_full_name|default:user.username }}! 🎓</h2>
-    <p class="text-gray-600 mt-1">Continue your learning journey today.</p>
+    <h2 class="text-3xl font-bold text-gray-800">Welcome back, {{ student.user.get_full_name|default:user.username }}! 🎓</h2>
+    <p class="text-gray-600 mt-1">
+        {% if student.course %}{{ student.course.name }}{% endif %}
+        {% if student.mentor %} &bull; Mentor: {{ student.mentor.get_full_name }}{% endif %}
+        {% if student.current_phase %} &bull; Phase: {{ student.current_phase.name }}{% endif %}
+    </p>
 </div>
 
-<!-- Statistics Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
+<!-- Stat Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
     <div class="stat-card bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-blue-100 text-sm font-medium mb-2">Course Progress</p>
-                <h3 class="text-4xl font-bold">{{ course_progress|default:0 }}%</h3>
+                <h3 class="text-4xl font-bold">{{ course_progress }}%</h3>
+                <p class="text-blue-100 text-xs mt-1">{{ completed_topics }} topics done</p>
             </div>
             <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
                 <i class="fas fa-chart-line text-3xl"></i>
             </div>
         </div>
     </div>
-    
-    <div class="stat-card bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-green-100 text-sm font-medium mb-2">Completed Topics</p>
-                <h3 class="text-4xl font-bold">{{ completed_topics|default:0 }}</h3>
-            </div>
-            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
-                <i class="fas fa-check-circle text-3xl"></i>
-            </div>
-        </div>
-    </div>
-    
-    <div class="stat-card bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-purple-100 text-sm font-medium mb-2">Pending Assignments</p>
-                <h3 class="text-4xl font-bold">{{ pending_assignments|default:0 }}</h3>
-            </div>
-            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
-                <i class="fas fa-tasks text-3xl"></i>
-            </div>
-        </div>
-    </div>
-    
+
     <div class="stat-card bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 text-white">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-orange-100 text-sm font-medium mb-2">Attendance</p>
-                <h3 class="text-4xl font-bold">{{ attendance_percentage|default:0 }}%</h3>
+                <h3 class="text-4xl font-bold">{{ attendance_percentage }}%</h3>
             </div>
             <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
                 <i class="fas fa-calendar-check text-3xl"></i>
             </div>
         </div>
     </div>
-    
+
+    <div class="stat-card bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-purple-100 text-sm font-medium mb-2">Pending Assignments</p>
+                <h3 class="text-4xl font-bold">{{ pending_assignments }}</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-tasks text-3xl"></i>
+            </div>
+        </div>
+    </div>
+
     {% if my_rank %}
     <div class="stat-card bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl p-6 text-white">
         <div class="flex items-center justify-between">
@@ -140,217 +118,198 @@
             </div>
         </div>
     </div>
+    {% else %}
+    <div class="stat-card bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-green-100 text-sm font-medium mb-2">Mark Attendance</p>
+                <h3 class="text-lg font-bold mt-2">Today</h3>
+            </div>
+            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <a href="{% url 'mark_my_attendance' %}" class="text-white">
+                    <i class="fas fa-map-marker-alt text-3xl"></i>
+                </a>
+            </div>
+        </div>
+        <a href="{% url 'mark_my_attendance' %}" class="mt-3 block text-center bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg py-1 text-sm font-semibold transition">
+            Mark Now
+        </a>
+    </div>
     {% endif %}
 </div>
 
-<!-- Upcoming Exams & Recent Results -->
-{% if upcoming_exams or recent_results %}
+<!-- Phase Progress + Upcoming Exams -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-    {% if upcoming_exams %}
+    <!-- Phase Progress -->
     <div class="bg-white rounded-2xl shadow-sm p-6">
-        <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
-            <i class="fas fa-calendar-alt text-blue-600 mr-3"></i>
-            Upcoming Exams
-        </h3>
+        <h3 class="text-xl font-bold text-gray-800 mb-5">Phase Progress</h3>
+        {% if phases_progress %}
         <div class="space-y-4">
-            {% for schedule in upcoming_exams %}
-            <div class="p-4 bg-red-50 rounded-xl border border-red-200 hover:shadow-md transition-shadow">
-                <div class="flex items-start justify-between">
-                    <div class="flex-1">
-                        <h4 class="font-bold text-gray-800">{{ schedule.exam.title }}</h4>
-                        <p class="text-sm text-gray-600 mt-1">{{ schedule.exam.description|truncatewords:15 }}</p>
-                        <div class="mt-3 flex items-center space-x-4 text-sm text-gray-600">
-                            <span><i class="fas fa-calendar mr-1"></i> {{ schedule.scheduled_date|date:"M d, Y" }}</span>
-                            <span><i class="fas fa-clock mr-1"></i> {{ schedule.scheduled_date|time:"g:i A" }}</span>
-                            <span><i class="fas fa-hourglass-half mr-1"></i> {{ schedule.duration_minutes }} min</span>
-                        </div>
-                    </div>
-                    <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">Upcoming</span>
+            {% for p in phases_progress %}
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-sm font-semibold text-gray-700 flex items-center">
+                        {{ p.phase.name }}
+                        {% if p.is_current %}
+                        <span class="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs">Current</span>
+                        {% endif %}
+                    </span>
+                    <span class="text-sm font-bold
+                        {% if p.progress >= 75 %}text-green-600
+                        {% elif p.progress >= 40 %}text-yellow-600
+                        {% else %}text-gray-400{% endif %}">
+                        {{ p.progress }}%
+                    </span>
                 </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="h-2.5 rounded-full transition-all
+                        {% if p.progress >= 75 %}bg-green-500
+                        {% elif p.progress >= 40 %}bg-yellow-500
+                        {% elif p.progress > 0 %}bg-blue-500
+                        {% else %}bg-gray-300{% endif %}"
+                        style="width: {{ p.progress }}%"></div>
+                </div>
+                <p class="text-xs text-gray-400 mt-0.5">{{ p.completed }}/{{ p.total }} topics</p>
             </div>
             {% endfor %}
         </div>
+        {% else %}
+        <div class="text-center py-8 text-gray-400">
+            <i class="fas fa-book-open text-3xl mb-2"></i>
+            <p>No course assigned yet.</p>
+        </div>
+        {% endif %}
     </div>
-    {% endif %}
-    
-    {% if recent_results %}
+
+    <!-- Upcoming Exams / Recent Results -->
     <div class="bg-white rounded-2xl shadow-sm p-6">
-        <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
-            <i class="fas fa-chart-bar text-green-600 mr-3"></i>
-            Recent Exam Results
+        {% if upcoming_exams %}
+        <h3 class="text-xl font-bold text-gray-800 mb-5 flex items-center">
+            <i class="fas fa-calendar-alt text-red-500 mr-2"></i>Upcoming Exams
         </h3>
-        <div class="space-y-4">
-            {% for result in recent_results %}
-            <div class="p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow">
-                <div class="flex items-center justify-between">
+        <div class="space-y-3">
+            {% for schedule in upcoming_exams %}
+            <div class="p-4 bg-red-50 rounded-xl border border-red-200">
+                <div class="flex items-start justify-between">
                     <div>
-                        <h4 class="font-semibold text-gray-800">{{ result.exam.title }}</h4>
-                        <p class="text-sm text-gray-500 mt-1">{{ result.start_time|date:"M d, Y" }}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-2xl font-bold {% if result.is_passed %}text-green-600{% else %}text-red-600{% endif %}">
-                            {{ result.marks_obtained }}/{{ result.exam.total_marks }}
+                        <h4 class="font-bold text-gray-800">{{ schedule.exam.title }}</h4>
+                        <p class="text-sm text-gray-500 mt-1">
+                            <i class="fas fa-calendar mr-1"></i>{{ schedule.scheduled_date|date:"M d, Y" }}
+                            &nbsp;<i class="fas fa-clock mr-1"></i>{{ schedule.scheduled_date|time:"g:i A" }}
                         </p>
-                        {% if result.is_passed %}
-                        <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">Passed</span>
-                        {% else %}
-                        <span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">Failed</span>
+                        {% if schedule.venue %}
+                        <p class="text-xs text-gray-400 mt-0.5"><i class="fas fa-map-marker-alt mr-1"></i>{{ schedule.venue }}</p>
                         {% endif %}
                     </div>
+                    <span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">Upcoming</span>
                 </div>
             </div>
             {% endfor %}
         </div>
-    </div>
-    {% endif %}
-</div>
-{% endif %}
-
-<!-- Current Phase & Progress -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-    <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm p-6">
-        <h3 class="text-xl font-bold text-gray-800 mb-6">Current Phase Progress</h3>
-        <div class="space-y-4">
-            <div>
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-semibold text-gray-700">Phase 1: Python Basics</span>
-                    <span class="text-sm font-semibold text-primary">85%</span>
+        {% elif recent_results %}
+        <h3 class="text-xl font-bold text-gray-800 mb-5 flex items-center">
+            <i class="fas fa-chart-bar text-green-500 mr-2"></i>Recent Exam Results
+        </h3>
+        <div class="space-y-3">
+            {% for result in recent_results %}
+            <div class="flex items-center justify-between p-4 border border-gray-200 rounded-xl">
+                <div>
+                    <h4 class="font-semibold text-gray-800">{{ result.exam.title }}</h4>
+                    <p class="text-sm text-gray-500">{{ result.start_time|date:"M d, Y" }}</p>
                 </div>
-                <div class="w-full bg-gray-200 rounded-full h-3">
-                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full" style="width: 85%"></div>
-                </div>
-            </div>
-            
-            <div>
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-semibold text-gray-700">Phase 2: Django Framework</span>
-                    <span class="text-sm font-semibold text-gray-400">Locked</span>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-3">
-                    <div class="bg-gray-300 h-3 rounded-full" style="width: 0%"></div>
+                <div class="text-right">
+                    <p class="text-2xl font-bold {% if result.is_passed %}text-green-600{% else %}text-red-600{% endif %}">
+                        {{ result.marks_obtained }}/{{ result.exam.total_marks }}
+                    </p>
+                    {% if result.is_passed %}
+                    <span class="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-semibold">Passed</span>
+                    {% else %}
+                    <span class="px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-semibold">Failed</span>
+                    {% endif %}
                 </div>
             </div>
-            
-            <div class="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-                <div class="flex items-start space-x-3">
-                    <i class="fas fa-info-circle text-blue-600 text-xl mt-1"></i>
-                    <div>
-                        <p class="text-sm font-semibold text-gray-800">Phase Unlock Requirements</p>
-                        <ul class="text-sm text-gray-600 mt-2 space-y-1">
-                            <li>✅ Complete all topics</li>
-                            <li>✅ Submit all assignments</li>
-                            <li>⏳ Pass phase exam (Pending)</li>
-                            <li>⏳ Get mentor approval</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
-    </div>
-    
-    <div class="bg-white rounded-2xl shadow-sm p-6">
-        <h3 class="text-xl font-bold text-gray-800 mb-6">Upcoming Events</h3>
-        <div class="space-y-4">
-            <div class="p-4 bg-red-50 rounded-xl border border-red-200">
-                <div class="flex items-center space-x-3 mb-2">
-                    <i class="fas fa-clipboard-list text-red-600"></i>
-                    <span class="text-sm font-semibold text-gray-800">Phase 1 Exam</span>
-                </div>
-                <p class="text-xs text-gray-600">March 15, 2026 - 10:00 AM</p>
-            </div>
-            
-            <div class="p-4 bg-yellow-50 rounded-xl border border-yellow-200">
-                <div class="flex items-center space-x-3 mb-2">
-                    <i class="fas fa-tasks text-yellow-600"></i>
-                    <span class="text-sm font-semibold text-gray-800">Assignment Due</span>
-                </div>
-                <p class="text-xs text-gray-600">March 12, 2026 - 11:59 PM</p>
-            </div>
-            
-            <div class="p-4 bg-green-50 rounded-xl border border-green-200">
-                <div class="flex items-center space-x-3 mb-2">
-                    <i class="fas fa-video text-green-600"></i>
-                    <span class="text-sm font-semibold text-gray-800">Expert Session</span>
-                </div>
-                <p class="text-xs text-gray-600">March 14, 2026 - 3:00 PM</p>
-            </div>
+        {% else %}
+        <h3 class="text-xl font-bold text-gray-800 mb-5">Exams</h3>
+        <div class="text-center py-8 text-gray-400">
+            <i class="fas fa-clipboard-list text-3xl mb-2"></i>
+            <p>No upcoming exams or results yet.</p>
         </div>
+        {% endif %}
     </div>
 </div>
 
-<!-- Pending Assignments & Recent Grades -->
+<!-- Pending Assignments + Recent Grades -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <div class="bg-white rounded-2xl shadow-sm p-6">
-        <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center justify-between mb-5">
             <h3 class="text-xl font-bold text-gray-800">Pending Assignments</h3>
-            <a href="#" class="text-primary hover:text-blue-700 text-sm font-semibold">View All →</a>
+            <a href="{% url 'student_assignments' %}" class="text-primary hover:text-blue-700 text-sm font-semibold">View All →</a>
         </div>
-        <div class="space-y-4">
+        {% if pending_assignments_list %}
+        <div class="space-y-3">
+            {% for item in pending_assignments_list %}
             <div class="p-4 border border-gray-200 rounded-xl hover:shadow-md transition">
-                <div class="flex items-center justify-between mb-2">
-                    <h4 class="font-semibold text-gray-800">Python Functions Assignment</h4>
-                    <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">Due Soon</span>
+                <div class="flex items-center justify-between mb-1">
+                    <h4 class="font-semibold text-gray-800 text-sm">{{ item.assignment.title }}</h4>
+                    {% if item.assignment.due_date %}
+                    <span class="px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-semibold">
+                        Due {{ item.assignment.due_date|date:"M d" }}
+                    </span>
+                    {% endif %}
                 </div>
-                <p class="text-sm text-gray-600 mb-3">Complete exercises on functions and modules</p>
-                <div class="flex items-center justify-between">
-                    <span class="text-xs text-gray-500">Due: March 12, 2026</span>
-                    <button class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-blue-700">Submit</button>
-                </div>
+                <p class="text-xs text-gray-500 mb-3">{{ item.assignment.description|truncatewords:12 }}</p>
+                <a href="{% url 'submit_assignment' item.assignment.id %}"
+                   class="inline-block px-4 py-1.5 bg-primary text-white rounded-lg text-xs hover:bg-blue-700 transition font-semibold">
+                    {% if item.submission %}Resubmit{% else %}Submit{% endif %}
+                </a>
             </div>
-            
-            <div class="p-4 border border-gray-200 rounded-xl hover:shadow-md transition">
-                <div class="flex items-center justify-between mb-2">
-                    <h4 class="font-semibold text-gray-800">Data Structures Project</h4>
-                    <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">In Progress</span>
-                </div>
-                <p class="text-sm text-gray-600 mb-3">Build a student management system</p>
-                <div class="flex items-center justify-between">
-                    <span class="text-xs text-gray-500">Due: March 18, 2026</span>
-                    <button class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-blue-700">Continue</button>
-                </div>
-            </div>
+            {% endfor %}
         </div>
+        {% else %}
+        <div class="text-center py-8 text-gray-400">
+            <i class="fas fa-check-circle text-3xl mb-2 text-green-400"></i>
+            <p>No pending assignments. Great job!</p>
+        </div>
+        {% endif %}
     </div>
-    
+
     <div class="bg-white rounded-2xl shadow-sm p-6">
-        <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center justify-between mb-5">
             <h3 class="text-xl font-bold text-gray-800">Recent Grades</h3>
-            <a href="#" class="text-primary hover:text-blue-700 text-sm font-semibold">View All →</a>
+            <a href="{% url 'student_assignments' %}?status=evaluated" class="text-primary hover:text-blue-700 text-sm font-semibold">View All →</a>
         </div>
-        <div class="space-y-4">
+        {% if recent_grades %}
+        <div class="space-y-3">
+            {% for sub in recent_grades %}
             <div class="flex items-center justify-between p-4 border border-gray-200 rounded-xl">
                 <div>
-                    <h4 class="font-semibold text-gray-800">Python Basics Quiz</h4>
-                    <p class="text-sm text-gray-500 mt-1">March 5, 2026</p>
+                    <h4 class="font-semibold text-gray-800 text-sm">{{ sub.assignment.title }}</h4>
+                    <p class="text-xs text-gray-500 mt-0.5">{{ sub.evaluated_at|date:"M d, Y" }}</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-2xl font-bold text-green-600">92%</p>
-                    <p class="text-xs text-gray-500">Excellent</p>
+                    {% if sub.marks_obtained is not None %}
+                    <p class="text-xl font-bold
+                        {% if sub.marks_obtained >= sub.assignment.max_marks|floatformat:0|add:0 %}text-green-600
+                        {% elif sub.marks_obtained >= 50 %}text-blue-600
+                        {% else %}text-red-600{% endif %}">
+                        {{ sub.marks_obtained }}/{{ sub.assignment.max_marks }}
+                    </p>
+                    {% endif %}
+                    {% if sub.feedback %}
+                    <p class="text-xs text-gray-400 mt-0.5">{{ sub.feedback|truncatewords:5 }}</p>
+                    {% endif %}
                 </div>
             </div>
-            
-            <div class="flex items-center justify-between p-4 border border-gray-200 rounded-xl">
-                <div>
-                    <h4 class="font-semibold text-gray-800">Variables Assignment</h4>
-                    <p class="text-sm text-gray-500 mt-1">March 3, 2026</p>
-                </div>
-                <div class="text-right">
-                    <p class="text-2xl font-bold text-blue-600">88%</p>
-                    <p class="text-xs text-gray-500">Good</p>
-                </div>
-            </div>
-            
-            <div class="flex items-center justify-between p-4 border border-gray-200 rounded-xl">
-                <div>
-                    <h4 class="font-semibold text-gray-800">Control Flow Test</h4>
-                    <p class="text-sm text-gray-500 mt-1">March 1, 2026</p>
-                </div>
-                <div class="text-right">
-                    <p class="text-2xl font-bold text-green-600">95%</p>
-                    <p class="text-xs text-gray-500">Excellent</p>
-                </div>
-            </div>
+            {% endfor %}
         </div>
+        {% else %}
+        <div class="text-center py-8 text-gray-400">
+            <i class="fas fa-star text-3xl mb-2"></i>
+            <p>No grades yet.</p>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

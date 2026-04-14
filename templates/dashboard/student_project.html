@@ -1,0 +1,128 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}My Project - Smart LMS{% endblock %}
+{% block page_title %}My Project{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'student_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    <a href="{% url 'student_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+    <a href="{% url 'student_progress' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-chart-line text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Progress</span>
+    </a>
+    <a href="{% url 'student_assignments' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-tasks text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Assignments</span>
+    </a>
+    <a href="{% url 'student_project' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-project-diagram text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">My Project</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'student_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'student_project' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-project-diagram text-xl"></i><span>My Project</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-3xl font-bold text-gray-800">My Project</h2>
+    <p class="text-gray-600 mt-1">View your assigned project details and team.</p>
+</div>
+
+{% if memberships %}
+    {% for membership in memberships %}
+    {% with project=membership.project %}
+    <div class="bg-white rounded-2xl shadow-sm p-8 mb-6">
+        <!-- Project Header -->
+        <div class="flex items-start justify-between mb-6">
+            <div>
+                <h3 class="text-2xl font-bold text-gray-800">{{ project.title }}</h3>
+                <p class="text-gray-500 mt-1">
+                    <i class="fas fa-chalkboard-teacher mr-1"></i>
+                    Mentor: {{ project.mentor.get_full_name|default:project.mentor.username|default:"Not Assigned" }}
+                </p>
+            </div>
+            <span class="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
+                Active
+            </span>
+        </div>
+
+        <!-- Description -->
+        <div class="p-4 bg-gray-50 rounded-xl mb-6">
+            <h4 class="font-semibold text-gray-700 mb-2">Description</h4>
+            <p class="text-gray-600">{{ project.description }}</p>
+        </div>
+
+        <!-- Progress (read-only) -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between mb-2">
+                <h4 class="font-semibold text-gray-700">Project Progress</h4>
+                <span class="text-2xl font-bold
+                    {% if project.progress_percentage >= 75 %}text-green-600
+                    {% elif project.progress_percentage >= 40 %}text-yellow-600
+                    {% else %}text-red-600{% endif %}">
+                    {{ project.progress_percentage }}%
+                </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-4">
+                <div class="h-4 rounded-full transition-all duration-500
+                    {% if project.progress_percentage >= 75 %}bg-green-500
+                    {% elif project.progress_percentage >= 40 %}bg-yellow-500
+                    {% else %}bg-red-500{% endif %}"
+                    style="width: {{ project.progress_percentage }}%"></div>
+            </div>
+        </div>
+
+        <!-- Team Members -->
+        <div>
+            <h4 class="font-semibold text-gray-700 mb-3">
+                <i class="fas fa-users mr-2 text-blue-600"></i>Team Members
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {% for member in project.members.all %}
+                <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl
+                    {% if member.student == student %}border-2 border-blue-300{% endif %}">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                        {{ member.student.user.first_name|first }}{{ member.student.user.last_name|first }}
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-800 text-sm">{{ member.student.user.get_full_name }}</p>
+                        {% if member.student == student %}
+                        <p class="text-xs text-blue-600 font-semibold">You</p>
+                        {% else %}
+                        <p class="text-xs text-gray-500">{{ member.student.enrollment_number }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endwith %}
+    {% endfor %}
+
+{% else %}
+<div class="bg-white rounded-2xl shadow-sm p-16 text-center">
+    <div class="w-24 h-24 bg-gray-100 rounded-full mx-auto flex items-center justify-center mb-6">
+        <i class="fas fa-project-diagram text-gray-400 text-4xl"></i>
+    </div>
+    <h3 class="text-2xl font-bold text-gray-700 mb-2">No Project Assigned Yet</h3>
+    <p class="text-gray-500">Your mentor hasn't assigned a project to you yet. Check back later.</p>
+</div>
+{% endif %}
+{% endblock %}

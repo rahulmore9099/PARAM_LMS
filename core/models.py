@@ -127,3 +127,35 @@ class ExamSchedule(models.Model):
     
     def __str__(self):
         return f"{self.exam.title} - {self.scheduled_date}"
+
+
+class Project(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    mentor = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        limit_choices_to={'role': 'mentor'},
+        related_name='projects'
+    )
+    progress_percentage = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'projects'
+
+    def __str__(self):
+        return self.title
+
+
+class ProjectMember(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='members')
+    student = models.ForeignKey('users.Student', on_delete=models.CASCADE, related_name='project_memberships')
+
+    class Meta:
+        db_table = 'project_members'
+        unique_together = ['project', 'student']
+
+    def __str__(self):
+        return f"{self.project.title} – {self.student.user.get_full_name()}"

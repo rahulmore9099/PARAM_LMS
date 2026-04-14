@@ -2,6 +2,72 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+import math
+
+
+# ---------------------------------------------------------------------------
+# GPS helpers
+# ---------------------------------------------------------------------------
+
+def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Returns great-circle distance in metres between two GPS coordinate pairs."""
+    R = 6_371_000
+    phi1, phi2 = math.radians(lat1), math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+    a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+
+def determine_attendance_status(distance_m: float, radius_m: float) -> str:
+    """Returns 'present' if within radius, else 'absent'."""
+    return 'present' if distance_m <= radius_m else 'absent'
+
+
+# ---------------------------------------------------------------------------
+# Registration helpers
+# ---------------------------------------------------------------------------
+
+def is_valid_phone(phone: str) -> bool:
+    """Returns True iff phone is exactly 10 ASCII digits."""
+    return phone.isdigit() and len(phone) == 10
+
+
+def validate_registration_data(data: dict) -> dict:
+    """
+    Validates registration POST data.
+    Returns dict of field_name -> [error_messages]. Empty dict means all valid.
+    """
+    from users.models import User
+    errors = {}
+
+    required = ['full_name', 'email', 'phone', 'parent_phone', 'parent_name',
+                'residence_type', 'technology', 'password', 'confirm_password']
+    for field in required:
+        if not data.get(field, '').strip():
+            errors.setdefault(field, []).append('This field is required.')
+
+    email = data.get('email', '').strip()
+    if email and User.objects.filter(email=email).exists():
+        errors.setdefault('email', []).append('An account with this email already exists.')
+
+    phone = data.get('phone', '').strip()
+    if phone and not is_valid_phone(phone):
+        errors.setdefault('phone', []).append('Mobile number must be exactly 10 digits.')
+
+    parent_phone = data.get('parent_phone', '').strip()
+    if parent_phone and not is_valid_phone(parent_phone):
+        errors.setdefault('parent_phone', []).append("Parent's mobile number must be exactly 10 digits.")
+
+    password = data.get('password', '')
+    if password and len(password) < 8:
+        errors.setdefault('password', []).append('Password must be at least 8 characters.')
+
+    confirm = data.get('confirm_password', '')
+    if password and confirm and password != confirm:
+        errors.setdefault('confirm_password', []).append('Passwords do not match.')
+
+    return errors
 
 def home(request):
     return render(request, 'home.html')
@@ -27,26 +93,117 @@ def contact(request):
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
-    
+
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        
-        user = authenticate(request, username=username, password=password)
-        
+        from users.models import User
+        login_input = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+
+        # Support both username and email login
+        user_obj = User.objects.filter(email=login_input).first()
+        if not user_obj:
+            user_obj = User.objects.filter(username=login_input).first()
+
+        user = None
+        if user_obj:
+            user = authenticate(request, username=user_obj.username, password=password)
+
         if user is not None:
             login(request, user)
             messages.success(request, f'Welcome back, {user.get_full_name() or user.username}!')
             return redirect('dashboard')
         else:
-            messages.error(request, 'Invalid username or password.')
-    
+            messages.error(request, 'Invalid credentials. Please check your username/email and password.')
+
     return render(request, 'login.html')
 
 def logout_view(request):
     logout(request)
     messages.success(request, 'You have been logged out successfully.')
     return redirect('home')
+
+
+def register_view(request):
+    """Student self-registration."""
+    from users.models import User, Student
+    from courses.models import Course
+
+    mentors = User.objects.filter(role='mentor', is_active=True)
+    courses = Course.objects.filter(is_active=True)
+
+    if request.method == 'POST':
+        data = {
+            'full_name': request.POST.get('full_name', '').strip(),
+            'email': request.POST.get('email', '').strip(),
+            'phone': request.POST.get('phone', '').strip(),
+            'parent_phone': request.POST.get('parent_phone', '').strip(),
+            'parent_name': request.POST.get('parent_name', '').strip(),
+            'residence_type': request.POST.get('residence_type', '').strip(),
+            'technology': request.POST.get('technology', '').strip(),
+            'mentor_id': request.POST.get('mentor_id', '').strip(),
+            'password': request.POST.get('password', ''),
+            'confirm_password': request.POST.get('confirm_password', ''),
+        }
+
+        errors = validate_registration_data(data)
+
+        if errors:
+            return render(request, 'register.html', {
+                'errors': errors,
+                'post': data,
+                'mentors': mentors,
+                'courses': courses,
+            })
+
+        # Build username from email prefix, ensure uniqueness
+        base_username = data['email'].split('@')[0]
+        username = base_username
+        counter = 1
+        while User.objects.filter(username=username).exists():
+            username = f"{base_username}{counter}"
+            counter += 1
+
+        name_parts = data['full_name'].split(' ', 1)
+        first_name = name_parts[0]
+        last_name = name_parts[1] if len(name_parts) > 1 else ''
+
+        user = User.objects.create_user(
+            username=username,
+            email=data['email'],
+            password=data['password'],
+            first_name=first_name,
+            last_name=last_name,
+            role='student',
+            phone=data['phone'],
+            is_verified=True,
+        )
+
+        # Generate enrollment number
+        enrollment_number = f"PARAM{User.objects.count():05d}"
+
+        mentor = None
+        if data['mentor_id']:
+            mentor = User.objects.filter(id=data['mentor_id'], role='mentor').first()
+
+        course = Course.objects.filter(id=data['technology']).first()
+
+        Student.objects.create(
+            user=user,
+            enrollment_number=enrollment_number,
+            course=course,
+            mentor=mentor,
+            parent_name=data['parent_name'],
+            residence_type=data['residence_type'],
+            is_active=True,
+        )
+
+        messages.success(request, 'Registration successful! Please log in.')
+        return redirect('login')
+
+    return render(request, 'register.html', {
+        'mentors': mentors,
+        'courses': courses,
+    })
 
 @login_required
 def dashboard(request):
@@ -71,21 +228,39 @@ def admin_dashboard(request):
     if request.user.role != 'admin':
         messages.error(request, 'Access denied. Admin only.')
         return redirect('dashboard')
-    
+
     from users.models import Student, User
-    from courses.models import Course, Batch
-    
+    from courses.models import Course, Batch, AssignmentSubmission
+    from exams.models import Exam
+    from attendance.models import Attendance
+    from datetime import date, datetime
+
+    today = date.today()
+    current_month = datetime.now().month
+    current_year = datetime.now().year
+
+    # Attendance today
+    total_today = Attendance.objects.filter(date=today).count()
+    present_today = Attendance.objects.filter(date=today, status='present').count()
+    attendance_today = int((present_today / total_today * 100)) if total_today > 0 else 0
+
+    # Pending assignments
+    pending_assignments = AssignmentSubmission.objects.filter(status='submitted').count()
+
+    # Upcoming exams (active, not yet ended)
+    upcoming_exams = Exam.objects.filter(is_active=True, end_time__gte=datetime.now()).count()
+
     context = {
         'total_students': Student.objects.filter(is_active=True).count(),
         'total_mentors': User.objects.filter(role='mentor', is_active=True).count(),
         'total_courses': Course.objects.filter(is_active=True).count(),
         'total_batches': Batch.objects.filter(is_active=True).count(),
         'active_students': Student.objects.filter(is_active=True).count(),
-        'pending_approvals': 0,
-        'completed_courses': 0,
-        'upcoming_exams': 0,
-        'pending_assignments': 0,
-        'attendance_today': 85,
+        'pending_approvals': Student.objects.filter(is_active=False).count(),
+        'completed_courses': Course.objects.filter(is_active=False).count(),
+        'upcoming_exams': upcoming_exams,
+        'pending_assignments': pending_assignments,
+        'attendance_today': attendance_today,
         'recent_students': Student.objects.select_related('user').order_by('-admission_date')[:5],
     }
     return render(request, 'dashboard/admin_dashboard.html', context)
@@ -188,7 +363,47 @@ def student_dashboard(request):
         student=student,
         status='evaluated'
     ).select_related('exam').order_by('-start_time')[:3]
-    
+
+    # Phase-wise progress for dashboard
+    phases_progress = []
+    if student.course:
+        for phase in student.course.phases.all():
+            phase_topics = 0
+            phase_completed = 0
+            for module in phase.modules.all():
+                for topic in module.topics.all():
+                    phase_topics += 1
+                    from courses.models import StudentProgress as SP
+                    if SP.objects.filter(student=student, topic=topic, is_completed=True).exists():
+                        phase_completed += 1
+            phase_pct = int((phase_completed / phase_topics * 100)) if phase_topics > 0 else 0
+            is_current = student.current_phase and student.current_phase.id == phase.id
+            phases_progress.append({
+                'phase': phase,
+                'progress': phase_pct,
+                'completed': phase_completed,
+                'total': phase_topics,
+                'is_current': is_current,
+            })
+
+    # Pending assignments for display
+    from courses.models import Assignment, AssignmentSubmission as AS
+    pending_assignments_list = []
+    if student.course:
+        for phase in student.course.phases.all():
+            for module in phase.modules.all():
+                for topic in module.topics.all():
+                    for assignment in topic.assignments.all():
+                        sub = AS.objects.filter(student=student, assignment=assignment).first()
+                        if not sub or sub.status in ('pending', 'resubmit'):
+                            pending_assignments_list.append({'assignment': assignment, 'submission': sub})
+    pending_assignments_list = pending_assignments_list[:5]
+
+    # Recent evaluated assignments
+    recent_grades = AS.objects.filter(
+        student=student, status='evaluated'
+    ).select_related('assignment').order_by('-evaluated_at')[:5]
+
     context = {
         'student': student,
         'course_progress': course_progress,
@@ -198,6 +413,9 @@ def student_dashboard(request):
         'my_rank': my_rank,
         'upcoming_exams': upcoming_exams,
         'recent_results': recent_results,
+        'phases_progress': phases_progress,
+        'pending_assignments_list': pending_assignments_list,
+        'recent_grades': recent_grades,
     }
     return render(request, 'dashboard/student_dashboard.html', context)
 
@@ -516,64 +734,67 @@ def mark_my_attendance(request):
     if request.user.role != 'student':
         messages.error(request, 'Access denied. Students only.')
         return redirect('dashboard')
-    
+
     try:
         student = request.user.student_profile
-    except:
+    except Exception:
         messages.error(request, 'Student profile not found.')
         return redirect('home')
-    
+
     from attendance.models import Attendance
-    from datetime import date, datetime
-    
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        
-        # Get today's attendance
-        today_attendance = Attendance.objects.filter(student=student, date=date.today()).first()
-        
-        if action == 'start':
-            if today_attendance:
-                messages.warning(request, 'Attendance already marked for today.')
-            else:
-                in_time = request.POST.get('in_time')
-                in_latitude = request.POST.get('in_latitude')
-                in_longitude = request.POST.get('in_longitude')
-                in_location = request.POST.get('in_location')
-                
-                Attendance.objects.create(
-                    student=student,
-                    date=date.today(),
-                    in_time=in_time,
-                    in_latitude=in_latitude,
-                    in_longitude=in_longitude,
-                    in_location_address=in_location,
-                    status='present'
-                )
-                messages.success(request, 'Attendance marked successfully!')
-        
-        elif action == 'exit':
-            if not today_attendance:
-                messages.error(request, 'Please mark entry first.')
-            else:
-                out_time = request.POST.get('out_time')
-                out_latitude = request.POST.get('out_latitude')
-                out_longitude = request.POST.get('out_longitude')
-                out_location = request.POST.get('out_location')
-                
-                today_attendance.out_time = out_time
-                today_attendance.out_latitude = out_latitude
-                today_attendance.out_longitude = out_longitude
-                today_attendance.out_location_address = out_location
-                today_attendance.save()
-                
-                messages.success(request, 'Exit time marked successfully!')
-        
-        return redirect('student_attendance')
-    
-    # Check if already marked today
+    from datetime import date
+    from django.conf import settings
+
     today_attendance = Attendance.objects.filter(student=student, date=date.today()).first()
-    
+
+    if request.method == 'POST':
+        # Duplicate check
+        if today_attendance:
+            messages.warning(request, 'Attendance already marked for today.')
+            return redirect('student_attendance')
+
+        lat_str = request.POST.get('lat', '').strip()
+        lon_str = request.POST.get('lon', '').strip()
+
+        if not lat_str or not lon_str:
+            messages.error(request, 'Location access is required to mark attendance.')
+            return redirect('mark_my_attendance')
+
+        try:
+            lat = float(lat_str)
+            lon = float(lon_str)
+        except ValueError:
+            messages.error(request, 'Invalid location data received.')
+            return redirect('mark_my_attendance')
+
+        inst_lat = getattr(settings, 'INSTITUTE_LATITUDE', 0.0)
+        inst_lon = getattr(settings, 'INSTITUTE_LONGITUDE', 0.0)
+        radius = getattr(settings, 'INSTITUTE_RADIUS_METERS', 200)
+
+        distance = haversine_distance(lat, lon, inst_lat, inst_lon)
+        status = determine_attendance_status(distance, radius)
+
+        from datetime import datetime
+        in_time = datetime.now().time()
+
+        Attendance.objects.create(
+            student=student,
+            date=date.today(),
+            status=status,
+            in_time=in_time,
+            in_latitude=lat,
+            in_longitude=lon,
+            in_location_address=request.POST.get('location_address', ''),
+            marked_by=request.user,
+        )
+
+        if status == 'present':
+            messages.success(request, f'Attendance marked as Present. You are within the institute premises.')
+        else:
+            messages.warning(request, f'Attendance marked as Absent. Your location is {int(distance)}m from the institute (allowed: {radius}m).')
+
+        return redirect('student_attendance')
+
     context = {
         'student': student,
         'today_attendance': today_attendance,
@@ -722,6 +943,28 @@ def watch_video(request, topic_id):
     return render(request, 'dashboard/student_watch_video.html', context)
 
 @login_required
+def student_project(request):
+    if request.user.role != 'student':
+        messages.error(request, 'Access denied. Students only.')
+        return redirect('dashboard')
+
+    try:
+        student = request.user.student_profile
+    except Exception:
+        messages.error(request, 'Student profile not found.')
+        return redirect('home')
+
+    from core.models import ProjectMember
+    memberships = ProjectMember.objects.filter(student=student).select_related('project__mentor')
+
+    context = {
+        'student': student,
+        'memberships': memberships,
+    }
+    return render(request, 'dashboard/student_project.html', context)
+
+
+@login_required
 def student_ai_help(request):
     if request.user.role != 'student':
         messages.error(request, 'Access denied. Students only.')
@@ -801,27 +1044,23 @@ def mentor_dashboard(request):
     if request.user.role != 'mentor':
         messages.error(request, 'Access denied. Mentors only.')
         return redirect('dashboard')
-    
+
     from users.models import Student
-    from courses.models import AssignmentSubmission
+    from courses.models import AssignmentSubmission, StudentProgress
     from exams.models import ExamAttempt
-    from datetime import datetime
-    
-    # Get mentor's students
+    from attendance.models import Attendance
+    from datetime import datetime, date
+
     my_students = Student.objects.filter(mentor=request.user, is_active=True)
-    
-    # Pending evaluations
+
     pending_assignments = AssignmentSubmission.objects.filter(
-        student__mentor=request.user,
-        status='submitted'
+        student__mentor=request.user, status='submitted'
     ).count()
-    
+
     pending_exams = ExamAttempt.objects.filter(
-        student__mentor=request.user,
-        status='submitted'
+        student__mentor=request.user, status='submitted'
     ).count()
-    
-    # Pending top performer approvals - with error handling
+
     pending_approvals = 0
     try:
         from core.models import TopPerformer
@@ -833,18 +1072,45 @@ def mentor_dashboard(request):
             month=current_month,
             year=current_year
         ).count()
-    except Exception as e:
+    except Exception:
         pass
-    
+
+    # Real attendance today for mentor's students
+    today = date.today()
+    student_ids = my_students.values_list('id', flat=True)
+    total_today = Attendance.objects.filter(student_id__in=student_ids, date=today).count()
+    present_today = Attendance.objects.filter(student_id__in=student_ids, date=today, status='present').count()
+    attendance_today = int((present_today / total_today * 100)) if total_today > 0 else 0
+
+    # Recent pending submissions for display
+    recent_pending = AssignmentSubmission.objects.filter(
+        student__mentor=request.user, status='submitted'
+    ).select_related('student__user', 'assignment').order_by('-submitted_at')[:5]
+
+    # Students with progress
+    students_data = []
+    for student in my_students.select_related('user', 'course', 'batch')[:5]:
+        total_topics = 0
+        completed_topics = 0
+        if student.course:
+            for phase in student.course.phases.all():
+                for module in phase.modules.all():
+                    total_topics += module.topics.count()
+            completed_topics = StudentProgress.objects.filter(student=student, is_completed=True).count()
+        progress = int((completed_topics / total_topics * 100)) if total_topics > 0 else 0
+        students_data.append({'student': student, 'progress': progress})
+
     context = {
         'total_students': my_students.count(),
         'pending_assignments': pending_assignments,
         'pending_exams': pending_exams,
         'pending_evaluations': pending_assignments + pending_exams,
         'pending_approvals': pending_approvals,
-        'upcoming_sessions': 3,
-        'attendance_today': 92,
+        'upcoming_sessions': 0,
+        'attendance_today': attendance_today,
         'recent_students': my_students.select_related('user')[:5],
+        'recent_pending': recent_pending,
+        'students_data': students_data,
     }
     return render(request, 'dashboard/mentor_dashboard.html', context)
 
@@ -972,68 +1238,186 @@ def mentor_attendance(request):
     }
     return render(request, 'dashboard/mentor_attendance.html', context)
 
+
+@login_required
+def mentor_update_student_phase(request, student_id):
+    if request.user.role != 'mentor':
+        from django.http import HttpResponseForbidden
+        return HttpResponseForbidden('Access denied. Mentors only.')
+
+    if request.method != 'POST':
+        return redirect('mentor_students')
+
+    from users.models import Student
+    from courses.models import Phase
+    from django.shortcuts import get_object_or_404
+
+    student = get_object_or_404(Student, id=student_id, mentor=request.user)
+    phase_id = request.POST.get('phase_id')
+    phase = get_object_or_404(Phase, id=phase_id)
+
+    student.current_phase = phase
+    student.save()
+    messages.success(request, f'Phase updated to "{phase.name}" for {student.user.get_full_name()}.')
+    return redirect('mentor_students')
+
+
+@login_required
+def mentor_projects(request):
+    if request.user.role != 'mentor':
+        from django.http import HttpResponseForbidden
+        return HttpResponseForbidden('Access denied. Mentors only.')
+
+    from core.models import Project, ProjectMember
+    from users.models import Student
+
+    if request.method == 'POST':
+        title = request.POST.get('title', '').strip()
+        description = request.POST.get('description', '').strip()
+        progress = int(request.POST.get('progress_percentage', 0))
+        member_ids = request.POST.getlist('members')
+
+        if title and description:
+            project = Project.objects.create(
+                title=title,
+                description=description,
+                mentor=request.user,
+                progress_percentage=max(0, min(100, progress)),
+            )
+            for sid in member_ids:
+                student = Student.objects.filter(id=sid).first()
+                if student:
+                    ProjectMember.objects.get_or_create(project=project, student=student)
+            messages.success(request, f'Project "{project.title}" created successfully!')
+        else:
+            messages.error(request, 'Title and description are required.')
+        return redirect('mentor_projects')
+
+    projects = Project.objects.filter(mentor=request.user).prefetch_related('members__student__user')
+    students = Student.objects.filter(mentor=request.user, is_active=True).select_related('user')
+
+    context = {
+        'projects': projects,
+        'students': students,
+    }
+    return render(request, 'dashboard/mentor_projects.html', context)
+
+
+@login_required
+def mentor_project_detail(request, project_id):
+    if request.user.role != 'mentor':
+        from django.http import HttpResponseForbidden
+        return HttpResponseForbidden('Access denied. Mentors only.')
+
+    from core.models import Project, ProjectMember
+    from users.models import Student
+    from django.shortcuts import get_object_or_404
+
+    project = get_object_or_404(Project, id=project_id, mentor=request.user)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'update_progress':
+            progress = int(request.POST.get('progress_percentage', project.progress_percentage))
+            project.progress_percentage = max(0, min(100, progress))
+            project.save()
+            messages.success(request, 'Project progress updated.')
+
+        elif action == 'add_member':
+            student_id = request.POST.get('student_id')
+            student = Student.objects.filter(id=student_id).first()
+            if student:
+                ProjectMember.objects.get_or_create(project=project, student=student)
+                messages.success(request, f'{student.user.get_full_name()} added to project.')
+
+        elif action == 'remove_member':
+            student_id = request.POST.get('student_id')
+            ProjectMember.objects.filter(project=project, student_id=student_id).delete()
+            messages.success(request, 'Member removed from project.')
+
+        return redirect('mentor_project_detail', project_id=project.id)
+
+    current_member_ids = project.members.values_list('student_id', flat=True)
+    available_students = Student.objects.filter(
+        mentor=request.user, is_active=True
+    ).exclude(id__in=current_member_ids).select_related('user')
+
+    context = {
+        'project': project,
+        'available_students': available_students,
+    }
+    return render(request, 'dashboard/mentor_project_detail.html', context)
+
+
 @login_required
 def staff_dashboard(request):
     if request.user.role != 'college_staff':
         messages.error(request, 'Access denied. Staff only.')
         return redirect('dashboard')
-    
+
     from users.models import Student
     from courses.models import StudentProgress
     from attendance.models import Attendance, LeaveRequest
-    from datetime import datetime
-    
-    # Total students
-    total_students = Student.objects.filter(is_active=True).count()
-    
-    # Pending leave requests
-    pending_leaves = LeaveRequest.objects.filter(status='pending').count()
-    
-    # Average attendance
-    attendance_records = Attendance.objects.all()
-    total_attendance = attendance_records.count()
-    present_records = attendance_records.filter(status='present').count()
+    from datetime import datetime, date
+
+    # Scope: staff sees students from their college (via Staff profile) or all if no college set
+    college_name = ''
+    try:
+        college_name = request.user.staff_profile.college_name
+    except Exception:
+        pass
+
+    students_qs = Student.objects.filter(is_active=True).select_related('user', 'course', 'batch', 'mentor')
+    if college_name:
+        students_qs = students_qs.filter(college_name=college_name)
+
+    total_students = students_qs.count()
+
+    # Pending leave requests scoped to these students
+    student_ids = students_qs.values_list('id', flat=True)
+    pending_leaves = LeaveRequest.objects.filter(student_id__in=student_ids, status='pending').count()
+
+    # Average attendance for scoped students
+    attendance_qs = Attendance.objects.filter(student_id__in=student_ids)
+    total_attendance = attendance_qs.count()
+    present_records = attendance_qs.filter(status='present').count()
     avg_attendance = int((present_records / total_attendance * 100)) if total_attendance > 0 else 0
-    
-    # Average performance
-    students = Student.objects.filter(is_active=True)
+
+    # Average performance (topic completion %)
     total_progress = 0
-    student_count = students.count()
-    
-    for student in students:
+    for student in students_qs:
         total_topics = 0
         completed_topics = 0
         if student.course:
-            for phase in student.course.phases.all():
+            for phase in student.course.phases.prefetch_related('modules__topics').all():
                 for module in phase.modules.all():
                     total_topics += module.topics.count()
             completed_topics = StudentProgress.objects.filter(student=student, is_completed=True).count()
         progress = int((completed_topics / total_topics * 100)) if total_topics > 0 else 0
         total_progress += progress
-    
-    avg_performance = int(total_progress / student_count) if student_count > 0 else 0
-    
-    # Top performers this month - with error handling
+
+    avg_performance = int(total_progress / total_students) if total_students > 0 else 0
+
+    # Top performers this month
     top_performers = []
     try:
         from core.models import TopPerformer
         current_month = datetime.now().month
         current_year = datetime.now().year
         top_performers = TopPerformer.objects.filter(
+            student_id__in=student_ids,
             month=current_month,
             year=current_year,
             is_approved=True
         ).select_related('student__user', 'batch').order_by('batch', 'rank')[:10]
-    except Exception as e:
+    except Exception:
         pass
-    
-    # Recent students
-    recent_students = Student.objects.filter(is_active=True).select_related('user', 'course', 'batch').order_by('-admission_date')[:10]
-    
-    # Calculate stats for recent students
+
+    # Recent students with stats
+    recent_students = students_qs.order_by('-admission_date')[:10]
     students_data = []
     for student in recent_students:
-        # Progress
         total_topics = 0
         completed_topics = 0
         if student.course:
@@ -1041,36 +1425,31 @@ def staff_dashboard(request):
                 for module in phase.modules.all():
                     total_topics += module.topics.count()
             completed_topics = StudentProgress.objects.filter(student=student, is_completed=True).count()
-        
         progress = int((completed_topics / total_topics * 100)) if total_topics > 0 else 0
-        
-        # Attendance
+
         total_days = Attendance.objects.filter(student=student).count()
         present_days = Attendance.objects.filter(student=student, status='present').count()
         attendance = int((present_days / total_days * 100)) if total_days > 0 else 0
-        
-        # Check if in top 5 - with error handling
+
         student_rank = None
         try:
             from core.models import TopPerformer
-            current_month = datetime.now().month
-            current_year = datetime.now().year
             student_rank = TopPerformer.objects.filter(
                 student=student,
-                month=current_month,
-                year=current_year,
+                month=datetime.now().month,
+                year=datetime.now().year,
                 is_approved=True
             ).first()
-        except Exception as e:
+        except Exception:
             pass
-        
+
         students_data.append({
             'student': student,
             'progress': progress,
             'attendance': attendance,
-            'rank': student_rank.rank if student_rank else None
+            'rank': student_rank.rank if student_rank else None,
         })
-    
+
     context = {
         'total_students': total_students,
         'pending_leaves': pending_leaves,
@@ -1078,6 +1457,7 @@ def staff_dashboard(request):
         'avg_performance': avg_performance,
         'students_data': students_data,
         'top_performers': top_performers,
+        'college_name': college_name,
     }
     return render(request, 'dashboard/staff_dashboard.html', context)
 
@@ -1309,38 +1689,40 @@ def staff_students(request):
     if request.user.role != 'college_staff':
         messages.error(request, 'Access denied. Staff only.')
         return redirect('dashboard')
-    
+
     from users.models import Student
-    from courses.models import StudentProgress
+    from courses.models import StudentProgress, Course, Batch
     from attendance.models import Attendance
     from django.db.models import Q
-    
-    # Get search and filter parameters
+
     search = request.GET.get('search', '')
     course_filter = request.GET.get('course', '')
     batch_filter = request.GET.get('batch', '')
-    
-    # Get all students
+
+    # Scope by college
+    college_name = ''
+    try:
+        college_name = request.user.staff_profile.college_name
+    except Exception:
+        pass
+
     students = Student.objects.filter(is_active=True).select_related('user', 'course', 'batch', 'mentor')
-    
-    # Apply filters
+    if college_name:
+        students = students.filter(college_name=college_name)
+
     if search:
         students = students.filter(
             Q(user__first_name__icontains=search) |
             Q(user__last_name__icontains=search) |
             Q(enrollment_number__icontains=search)
         )
-    
     if course_filter:
         students = students.filter(course_id=course_filter)
-    
     if batch_filter:
         students = students.filter(batch_id=batch_filter)
-    
-    # Calculate stats for each student
+
     students_data = []
     for student in students:
-        # Progress
         total_topics = 0
         completed_topics = 0
         if student.course:
@@ -1348,25 +1730,17 @@ def staff_students(request):
                 for module in phase.modules.all():
                     total_topics += module.topics.count()
             completed_topics = StudentProgress.objects.filter(student=student, is_completed=True).count()
-        
         progress = int((completed_topics / total_topics * 100)) if total_topics > 0 else 0
-        
-        # Attendance
+
         total_days = Attendance.objects.filter(student=student).count()
         present_days = Attendance.objects.filter(student=student, status='present').count()
         attendance = int((present_days / total_days * 100)) if total_days > 0 else 0
-        
-        students_data.append({
-            'student': student,
-            'progress': progress,
-            'attendance': attendance
-        })
-    
-    # Get courses and batches for filters
-    from courses.models import Course, Batch
+
+        students_data.append({'student': student, 'progress': progress, 'attendance': attendance})
+
     courses = Course.objects.filter(is_active=True)
     batches = Batch.objects.filter(is_active=True)
-    
+
     context = {
         'students_data': students_data,
         'courses': courses,
@@ -1435,38 +1809,46 @@ def staff_reports(request):
     if request.user.role != 'college_staff':
         messages.error(request, 'Access denied. Staff only.')
         return redirect('dashboard')
-    
+
     from users.models import Student
     from courses.models import Course, StudentProgress
     from attendance.models import Attendance
-    from exams.models import ExamAttempt
-    from django.db.models import Avg, Count
-    
-    # Overall statistics
-    total_students = Student.objects.filter(is_active=True).count()
-    
-    # Attendance statistics
-    attendance_records = Attendance.objects.all()
-    total_attendance_records = attendance_records.count()
-    present_records = attendance_records.filter(status='present').count()
-    overall_attendance = int((present_records / total_attendance_records * 100)) if total_attendance_records > 0 else 0
-    
-    # Course-wise statistics
-    courses = Course.objects.filter(is_active=True)
+
+    # Scope by college
+    college_name = ''
+    try:
+        college_name = request.user.staff_profile.college_name
+    except Exception:
+        pass
+
+    students_qs = Student.objects.filter(is_active=True)
+    if college_name:
+        students_qs = students_qs.filter(college_name=college_name)
+
+    total_students = students_qs.count()
+    student_ids = students_qs.values_list('id', flat=True)
+
+    # Overall attendance
+    attendance_qs = Attendance.objects.filter(student_id__in=student_ids)
+    total_att = attendance_qs.count()
+    present_att = attendance_qs.filter(status='present').count()
+    overall_attendance = int((present_att / total_att * 100)) if total_att > 0 else 0
+
+    # Course-wise stats (only courses that have students in scope)
+    course_ids = students_qs.values_list('course_id', flat=True).distinct()
+    courses = Course.objects.filter(id__in=course_ids, is_active=True)
     course_stats = []
     for course in courses:
-        students = Student.objects.filter(course=course, is_active=True)
-        student_count = students.count()
-        
-        # Average attendance
-        course_attendance = Attendance.objects.filter(student__course=course)
-        total_course_attendance = course_attendance.count()
-        present_course = course_attendance.filter(status='present').count()
-        avg_attendance = int((present_course / total_course_attendance * 100)) if total_course_attendance > 0 else 0
-        
-        # Average progress
+        course_students = students_qs.filter(course=course)
+        student_count = course_students.count()
+
+        course_att = Attendance.objects.filter(student__in=course_students)
+        total_course_att = course_att.count()
+        present_course = course_att.filter(status='present').count()
+        avg_attendance = int((present_course / total_course_att * 100)) if total_course_att > 0 else 0
+
         total_progress = 0
-        for student in students:
+        for student in course_students:
             total_topics = 0
             completed_topics = 0
             for phase in course.phases.all():
@@ -1475,16 +1857,16 @@ def staff_reports(request):
             completed_topics = StudentProgress.objects.filter(student=student, is_completed=True).count()
             progress = int((completed_topics / total_topics * 100)) if total_topics > 0 else 0
             total_progress += progress
-        
+
         avg_progress = int(total_progress / student_count) if student_count > 0 else 0
-        
+
         course_stats.append({
             'course': course,
             'student_count': student_count,
             'avg_attendance': avg_attendance,
-            'avg_progress': avg_progress
+            'avg_progress': avg_progress,
         })
-    
+
     context = {
         'total_students': total_students,
         'overall_attendance': overall_attendance,
@@ -1497,28 +1879,39 @@ def staff_attendance(request):
     if request.user.role != 'college_staff':
         messages.error(request, 'Access denied. Staff only.')
         return redirect('dashboard')
-    
+
     from attendance.models import Attendance
-    from datetime import date, timedelta
-    from django.db.models import Q
-    
-    # Get date filter
+    from users.models import Student
+    from datetime import date
+
     selected_date = request.GET.get('date', str(date.today()))
-    
     try:
         filter_date = date.fromisoformat(selected_date)
-    except:
+    except ValueError:
         filter_date = date.today()
-    
-    # Get attendance for selected date
-    attendance_records = Attendance.objects.filter(date=filter_date).select_related('student__user', 'student__course', 'student__batch').order_by('student__user__first_name')
-    
-    # Statistics
+
+    # Scope by college
+    college_name = ''
+    try:
+        college_name = request.user.staff_profile.college_name
+    except Exception:
+        pass
+
+    student_ids = Student.objects.filter(is_active=True)
+    if college_name:
+        student_ids = student_ids.filter(college_name=college_name)
+    student_ids = student_ids.values_list('id', flat=True)
+
+    attendance_records = Attendance.objects.filter(
+        date=filter_date,
+        student_id__in=student_ids
+    ).select_related('student__user', 'student__course', 'student__batch').order_by('student__user__first_name')
+
     total_records = attendance_records.count()
     present_count = attendance_records.filter(status='present').count()
     absent_count = attendance_records.filter(status='absent').count()
     leave_count = attendance_records.filter(status='leave').count()
-    
+
     context = {
         'attendance_records': attendance_records,
         'selected_date': filter_date,
@@ -1534,18 +1927,30 @@ def staff_leave_requests(request):
     if request.user.role != 'college_staff':
         messages.error(request, 'Access denied. Staff only.')
         return redirect('dashboard')
-    
+
     from attendance.models import LeaveRequest
-    
-    # Get filter
+    from users.models import Student
+
     status_filter = request.GET.get('status', 'pending')
-    
-    # Get leave requests
-    leave_requests = LeaveRequest.objects.select_related('student__user').order_by('-created_at')
-    
+
+    college_name = ''
+    try:
+        college_name = request.user.staff_profile.college_name
+    except Exception:
+        pass
+
+    student_ids = Student.objects.filter(is_active=True)
+    if college_name:
+        student_ids = student_ids.filter(college_name=college_name)
+    student_ids = student_ids.values_list('id', flat=True)
+
+    leave_requests = LeaveRequest.objects.filter(
+        student_id__in=student_ids
+    ).select_related('student__user', 'approved_by').order_by('-created_at')
+
     if status_filter != 'all':
         leave_requests = leave_requests.filter(status=status_filter)
-    
+
     context = {
         'leave_requests': leave_requests,
         'status_filter': status_filter,

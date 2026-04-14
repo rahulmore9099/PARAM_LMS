@@ -1,0 +1,206 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Attendance Calendar - Smart LMS{% endblock %}
+{% block page_title %}Attendance Calendar{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'admin_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    <a href="{% url 'admin_students' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-user-graduate text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Students</span>
+    </a>
+    <a href="{% url 'admin_attendance' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+    <a href="{% url 'admin_courses' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-book-open text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Courses</span>
+    </a>
+    <a href="{% url 'admin_announcements' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-bullhorn text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Announcements</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'admin_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'admin_attendance' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl"></i><span>Attendance</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between flex-wrap gap-4">
+    <div>
+        <h2 class="text-3xl font-bold text-gray-800">Attendance Calendar</h2>
+        <p class="text-gray-600 mt-1">{{ month_name }} {{ year }}</p>
+    </div>
+    <div class="flex items-center space-x-3">
+        <!-- Previous Month -->
+        {% if month == 1 %}
+        <a href="?year={{ year|add:"-1" }}&month=12"
+        {% else %}
+        <a href="?year={{ year }}&month={{ month|add:"-1" }}"
+        {% endif %}
+           class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-semibold text-gray-700">
+            <i class="fas fa-chevron-left mr-1"></i> Prev
+        </a>
+        <!-- Next Month -->
+        {% if month == 12 %}
+        <a href="?year={{ year|add:"1" }}&month=1"
+        {% else %}
+        <a href="?year={{ year }}&month={{ month|add:"1" }}"
+        {% endif %}
+           class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-semibold text-gray-700">
+            Next <i class="fas fa-chevron-right ml-1"></i>
+        </a>
+        <a href="{% url 'admin_attendance' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+            <i class="fas fa-list mr-1"></i> List View
+        </a>
+    </div>
+</div>
+
+<!-- Legend -->
+<div class="bg-white rounded-2xl shadow-sm p-4 mb-6 flex items-center space-x-6 flex-wrap gap-3">
+    <span class="text-sm font-semibold text-gray-700">Legend:</span>
+    <span class="flex items-center space-x-2">
+        <span class="w-4 h-4 bg-green-500 rounded-full inline-block"></span>
+        <span class="text-sm text-gray-600">High Attendance (&ge;75%)</span>
+    </span>
+    <span class="flex items-center space-x-2">
+        <span class="w-4 h-4 bg-yellow-500 rounded-full inline-block"></span>
+        <span class="text-sm text-gray-600">Medium (50–74%)</span>
+    </span>
+    <span class="flex items-center space-x-2">
+        <span class="w-4 h-4 bg-red-500 rounded-full inline-block"></span>
+        <span class="text-sm text-gray-600">Low (&lt;50%)</span>
+    </span>
+    <span class="flex items-center space-x-2">
+        <span class="w-4 h-4 bg-gray-200 rounded-full inline-block"></span>
+        <span class="text-sm text-gray-600">No Records</span>
+    </span>
+</div>
+
+<!-- Calendar Grid -->
+<div class="bg-white rounded-2xl shadow-sm p-6">
+    <!-- Day Headers -->
+    <div class="grid grid-cols-7 mb-2">
+        {% for day in "Mon,Tue,Wed,Thu,Fri,Sat,Sun"|split:"," %}
+        <div class="text-center text-sm font-bold text-gray-500 py-2">{{ day }}</div>
+        {% endfor %}
+    </div>
+
+    <!-- Calendar Weeks -->
+    {% for week in calendar_days %}
+    <div class="grid grid-cols-7 gap-1 mb-1">
+        {% for day in week %}
+        {% if day == 0 %}
+        <div class="h-20 rounded-lg bg-gray-50"></div>
+        {% else %}
+        {% with day_key=year|stringformat:"s"|add:"-"|add:month|stringformat:"02d"|add:"-"|add:day|stringformat:"02d" %}
+        <div class="h-20 rounded-lg border border-gray-100 p-2 hover:shadow-md transition-shadow cursor-pointer
+            {% if attendance_by_date %}
+                {% for att_date, stats in attendance_by_date.items %}
+                    {% if att_date.day == day and att_date.month == month and att_date.year == year %}
+                        {% with total=stats.present|add:stats.absent|add:stats.late|add:stats.half_day %}
+                            {% if total > 0 %}
+                                {% if stats.present >= total|divisibleby:1 %}
+                                {% endif %}
+                            {% endif %}
+                        {% endwith %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            ">
+            <div class="flex items-start justify-between">
+                <span class="text-sm font-bold text-gray-700">{{ day }}</span>
+                {% for att_date, stats in attendance_by_date.items %}
+                    {% if att_date.day == day and att_date.month == month and att_date.year == year %}
+                        {% with total=stats.present|add:stats.absent|add:stats.late|add:stats.half_day %}
+                            {% if total > 0 %}
+                                {% widthratio stats.present total 100 as pct %}
+                                {% if pct >= 75 %}
+                                <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+                                {% elif pct >= 50 %}
+                                <span class="w-3 h-3 bg-yellow-500 rounded-full"></span>
+                                {% else %}
+                                <span class="w-3 h-3 bg-red-500 rounded-full"></span>
+                                {% endif %}
+                            {% endif %}
+                        {% endwith %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% for att_date, stats in attendance_by_date.items %}
+                {% if att_date.day == day and att_date.month == month and att_date.year == year %}
+                <div class="mt-1 space-y-0.5">
+                    {% if stats.present > 0 %}
+                    <p class="text-xs text-green-600 font-semibold">P: {{ stats.present }}</p>
+                    {% endif %}
+                    {% if stats.absent > 0 %}
+                    <p class="text-xs text-red-600 font-semibold">A: {{ stats.absent }}</p>
+                    {% endif %}
+                    {% if stats.late > 0 %}
+                    <p class="text-xs text-yellow-600 font-semibold">L: {{ stats.late }}</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endwith %}
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Monthly Summary -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
+    <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white">
+        <p class="text-green-100 text-sm mb-2">Total Present</p>
+        <h3 class="text-4xl font-bold">
+            {% with total=0 %}
+            {% for att_date, stats in attendance_by_date.items %}
+                {% if att_date.month == month and att_date.year == year %}
+                    {{ stats.present }}
+                {% endif %}
+            {% endfor %}
+            {% endwith %}
+        </h3>
+    </div>
+    <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl p-6 text-white">
+        <p class="text-red-100 text-sm mb-2">Total Absent</p>
+        <h3 class="text-4xl font-bold">
+            {% for att_date, stats in attendance_by_date.items %}
+                {% if att_date.month == month and att_date.year == year %}
+                    {{ stats.absent }}
+                {% endif %}
+            {% endfor %}
+        </h3>
+    </div>
+    <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl p-6 text-white">
+        <p class="text-yellow-100 text-sm mb-2">Total Late</p>
+        <h3 class="text-4xl font-bold">
+            {% for att_date, stats in attendance_by_date.items %}
+                {% if att_date.month == month and att_date.year == year %}
+                    {{ stats.late }}
+                {% endif %}
+            {% endfor %}
+        </h3>
+    </div>
+    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white">
+        <p class="text-blue-100 text-sm mb-2">Working Days</p>
+        <h3 class="text-4xl font-bold">{{ attendance_by_date|length }}</h3>
+    </div>
+</div>
+{% endblock %}

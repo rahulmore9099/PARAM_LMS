@@ -1,0 +1,95 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Top Performers - Smart LMS{% endblock %}
+{% block page_title %}Top Performers{% endblock %}
+
+{% block sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'mentor_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Dashboard</span>
+    </a>
+    <a href="{% url 'mentor_students' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-users text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">My Students</span>
+    </a>
+    <a href="{% url 'mentor_evaluations' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-clipboard-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Evaluations</span>
+    </a>
+    <a href="{% url 'mentor_attendance' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-calendar-check text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Attendance</span>
+    </a>
+    <a href="{% url 'mentor_top_performers' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-trophy text-xl" :class="sidebarOpen ? '' : 'mx-auto'"></i>
+        <span x-show="sidebarOpen">Top Performers</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block mobile_sidebar_menu %}
+<div class="space-y-1 px-3">
+    <a href="{% url 'mentor_dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-home text-xl"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'mentor_top_performers' %}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-lg">
+        <i class="fas fa-trophy text-xl"></i><span>Top Performers</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-3xl font-bold text-gray-800">Top Performers</h2>
+    <p class="text-gray-600 mt-1">Review and approve top performer nominations for your students.</p>
+</div>
+
+<div class="bg-white rounded-2xl shadow-sm p-4 mb-6 flex space-x-3">
+    <a href="?status=pending" class="px-4 py-2 rounded-lg {% if status_filter == 'pending' %}bg-yellow-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %} transition-colors font-semibold">
+        Pending
+    </a>
+    <a href="?status=approved" class="px-4 py-2 rounded-lg {% if status_filter == 'approved' %}bg-green-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %} transition-colors font-semibold">
+        Approved
+    </a>
+    <a href="?status=all" class="px-4 py-2 rounded-lg {% if status_filter == 'all' %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %} transition-colors font-semibold">
+        All
+    </a>
+</div>
+
+<div class="space-y-4">
+    {% for performer in performers %}
+    <div class="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                    #{{ performer.rank }}
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800">{{ performer.student.user.get_full_name }}</h3>
+                    <p class="text-gray-500 text-sm">{{ performer.batch.name }} &bull; {{ performer.month }}/{{ performer.year }}</p>
+                    <p class="text-gray-600 mt-1">Score: <span class="font-bold text-yellow-600">{{ performer.percentage }}%</span> ({{ performer.total_marks }} marks)</p>
+                </div>
+            </div>
+            <div class="text-right">
+                {% if performer.is_approved %}
+                <span class="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
+                    <i class="fas fa-check-circle mr-1"></i>Approved
+                </span>
+                {% else %}
+                <a href="{% url 'mentor_approve_performer' performer.id %}"
+                   class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                    <i class="fas fa-eye mr-1"></i>Review
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="bg-white rounded-2xl shadow-sm p-12 text-center text-gray-500">
+        <i class="fas fa-trophy text-6xl mb-4 text-yellow-400"></i>
+        <p class="text-xl font-semibold mb-2">No Performers Found</p>
+        <p class="text-sm">No {{ status_filter }} top performer entries at the moment.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

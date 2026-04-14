@@ -13,7 +13,7 @@
             <h2 class="text-4xl font-bold text-white mb-2">Welcome Back!</h2>
             <p class="text-blue-100">Sign in to continue your learning journey</p>
         </div>
-        
+
         <!-- Login Form -->
         <div class="bg-white rounded-2xl shadow-2xl p-8 animate-scale-in">
             {% if messages %}
@@ -23,61 +23,98 @@
                 </div>
                 {% endfor %}
             {% endif %}
-            
-            <form method="POST" class="space-y-6">
+
+            <form method="POST" class="space-y-6" id="loginForm">
                 {% csrf_token %}
-                
+
                 <div>
                     <label class="block text-gray-700 font-semibold mb-2">
                         <i class="fas fa-user mr-2 text-primary"></i>Username or Email
                     </label>
-                    <input type="text" name="username" required 
+                    <input type="text" name="email" id="usernameInput" required
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                           placeholder="Enter your username">
+                           placeholder="Enter your username or email">
                 </div>
-                
+
                 <div>
                     <label class="block text-gray-700 font-semibold mb-2">
                         <i class="fas fa-lock mr-2 text-primary"></i>Password
                     </label>
-                    <input type="password" name="password" required 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                           placeholder="Enter your password">
+                    <div class="relative">
+                        <input type="password" name="password" id="passwordInput" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                               placeholder="Enter your password">
+                        <button type="button" onclick="togglePassword()"
+                                class="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-eye" id="eyeIcon"></i>
+                        </button>
+                    </div>
                 </div>
-                
+
                 <div class="flex items-center justify-between">
                     <label class="flex items-center">
                         <input type="checkbox" name="remember" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary">
                         <span class="ml-2 text-gray-700">Remember me</span>
                     </label>
-                    <a href="/forgot-password/" class="text-primary hover:text-blue-700 font-semibold">Forgot Password?</a>
+                    <a href="/contact/" class="text-primary hover:text-blue-700 font-semibold text-sm">Need help?</a>
                 </div>
-                
-                <button type="submit" 
+
+                <button type="submit"
                         class="w-full bg-primary text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition hover-lift">
                     <i class="fas fa-sign-in-alt mr-2"></i>Sign In
                 </button>
             </form>
-            
-            <div class="mt-6 text-center">
-                <p class="text-gray-600">Don't have an account? <a href="/contact/" class="text-primary hover:text-blue-700 font-semibold">Contact Us</a></p>
-            </div>
-            
+
+            <!-- Quick Login Section -->
             <div class="mt-6 pt-6 border-t border-gray-200">
-                <p class="text-center text-gray-600 mb-4">Or sign in as</p>
-                <div class="grid grid-cols-2 gap-4">
-                    <button class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-                        <i class="fas fa-user-graduate text-primary mr-2"></i>
-                        <span class="text-gray-700 font-semibold">Student</span>
+                <p class="text-center text-gray-500 text-sm font-semibold mb-4 uppercase tracking-wide">Quick Login (Demo)</p>
+                <div class="grid grid-cols-2 gap-3">
+
+                    <!-- Student -->
+                    <button onclick="fillCredentials('student', 'student123')"
+                            class="flex items-center justify-center px-4 py-3 bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl hover:border-blue-400 hover:shadow-md transition group">
+                        <i class="fas fa-user-graduate text-blue-600 mr-2 text-lg group-hover:scale-110 transition-transform"></i>
+                        <div class="text-left">
+                            <p class="text-gray-800 font-semibold text-sm">Student</p>
+                            <p class="text-gray-400 text-xs">student / student123</p>
+                        </div>
                     </button>
-                    <button class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-                        <i class="fas fa-chalkboard-teacher text-accent mr-2"></i>
-                        <span class="text-gray-700 font-semibold">Mentor</span>
+
+                    <!-- Mentor -->
+                    <button onclick="fillCredentials('mentor', 'mentor123')"
+                            class="flex items-center justify-center px-4 py-3 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-xl hover:border-green-400 hover:shadow-md transition group">
+                        <i class="fas fa-chalkboard-teacher text-green-600 mr-2 text-lg group-hover:scale-110 transition-transform"></i>
+                        <div class="text-left">
+                            <p class="text-gray-800 font-semibold text-sm">Mentor</p>
+                            <p class="text-gray-400 text-xs">mentor / mentor123</p>
+                        </div>
                     </button>
+
+                    <!-- Admin -->
+                    <button onclick="fillCredentials('admin', 'admin123')"
+                            class="flex items-center justify-center px-4 py-3 bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-xl hover:border-purple-400 hover:shadow-md transition group">
+                        <i class="fas fa-user-shield text-purple-600 mr-2 text-lg group-hover:scale-110 transition-transform"></i>
+                        <div class="text-left">
+                            <p class="text-gray-800 font-semibold text-sm">Admin</p>
+                            <p class="text-gray-400 text-xs">admin / admin123</p>
+                        </div>
+                    </button>
+
+                    <!-- Staff -->
+                    <button onclick="fillCredentials('staff', 'staff123')"
+                            class="flex items-center justify-center px-4 py-3 bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-200 rounded-xl hover:border-orange-400 hover:shadow-md transition group">
+                        <i class="fas fa-id-badge text-orange-600 mr-2 text-lg group-hover:scale-110 transition-transform"></i>
+                        <div class="text-left">
+                            <p class="text-gray-800 font-semibold text-sm">Staff</p>
+                            <p class="text-gray-400 text-xs">staff / staff123</p>
+                        </div>
+                    </button>
+
                 </div>
+                <p class="text-center text-gray-400 text-xs mt-3">Click any role to auto-fill credentials</p>
             </div>
         </div>
-        
+
         <!-- Back to Home -->
         <div class="text-center mt-6">
             <a href="/" class="text-white hover:text-blue-200 transition">
@@ -86,4 +123,29 @@
         </div>
     </div>
 </div>
+
+<script>
+function fillCredentials(username, password) {
+    document.getElementById('usernameInput').value = username;
+    document.getElementById('passwordInput').value = password;
+    // Highlight the fields briefly
+    ['usernameInput', 'passwordInput'].forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.add('ring-2', 'ring-primary', 'border-primary');
+        setTimeout(() => el.classList.remove('ring-2', 'ring-primary', 'border-primary'), 1500);
+    });
+}
+
+function togglePassword() {
+    const input = document.getElementById('passwordInput');
+    const icon = document.getElementById('eyeIcon');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+}
+</script>
 {% endblock %}
